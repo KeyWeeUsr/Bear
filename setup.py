@@ -18,7 +18,7 @@ setup(
     url='https://github.com/KeyWeeUsr/Bear',
     download_url=f'https://github.com/KeyWeeUsr/Bear/tarball/{VERSION}',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: '
         'GNU Affero General Public License v3 or later (AGPLv3+)',
         'Environment :: Console',
