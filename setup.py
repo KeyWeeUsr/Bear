@@ -4,11 +4,11 @@ Basic setup.py
 """
 
 from setuptools import setup, find_packages
-
+from bear import VERSION
 
 setup(
     name='Bear',
-    version='0.0.1',
+    version=VERSION,
     description='Bear',
     long_description='Bear',
     long_description_content_type="text/markdown",
@@ -16,7 +16,7 @@ setup(
     author='Peter Badida',
     author_email='keyweeusr@gmail.com',
     url='https://github.com/KeyWeeUsr/Bear',
-    download_url='https://github.com/KeyWeeUsr/Bear/tarball/0.0.1',
+    download_url=f'https://github.com/KeyWeeUsr/Bear/tarball/{VERSION}',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'License :: OSI Approved :: '

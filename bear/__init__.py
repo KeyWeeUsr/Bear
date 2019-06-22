@@ -4,6 +4,8 @@ Main file for the Bear package.
 
 from hashlib import md5
 
+VERSION = '0.0.2'
+
 
 def hash_text(inp):
     """
