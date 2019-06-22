@@ -6,7 +6,7 @@ Main module for running the package as a Python module from console:
 
 import logging
 import argparse
-from bear import hash_file, find_files, hash_files
+from bear import hash_file, find_files, hash_files, filter_files
 
 LOG = logging.getLogger(__name__)
 logging.basicConfig(level=logging.NOTSET)
@@ -36,7 +36,7 @@ def main(args):
             print(find_files(folder))
     elif args.hash:
         for folder in args.hash:
-            print(hash_files(find_files(folder)))
+            print(filter_files(hash_files(find_files(folder))))
 
 
 def run():

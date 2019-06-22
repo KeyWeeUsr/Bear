@@ -72,3 +72,12 @@ def hash_files(files):
             ignore_append(fname)
 
     return hashfiles
+
+
+def filter_files(files):
+    """
+    Filter out hashes with only single file connected to them to prevent
+    having all of the file hashes even if the files are not duplicated.
+    """
+
+    return {key: value for key, value in files.items() if len(value) > 1}
