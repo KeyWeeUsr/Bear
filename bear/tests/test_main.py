@@ -5,14 +5,16 @@ Test running module in CLI.
 from unittest import TestCase, main
 from unittest.mock import patch
 
-from bear.__main__ import main as app_main
+from bear.__main__ import run
 
 
 class MainCase(TestCase):
     def test_cli(self):
         target = 'testpath'
-        with patch('bear.__main__.hash_file') as mocked:
-            app_main([None, target])
+        hash_file = patch('bear.__main__.hash_file')
+        sysargv = patch('sys.argv', [__name__, target])
+        with sysargv, hash_file as mocked:
+            run()
             mocked.assert_called_once_with(target)
 
 
