@@ -6,7 +6,7 @@ from hashlib import md5
 from os import walk
 from os.path import exists, join
 
-VERSION = '0.0.3'
+VERSION = '0.0.4'
 
 
 def hash_text(inp):
