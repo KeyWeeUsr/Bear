@@ -38,3 +38,37 @@ def find_files(folder):
         for name, folder, files in walk(folder)
         for fname in files
     ]
+
+
+def hash_files(files):
+    """
+    Hash each of the file in the list.
+    """
+
+    hashfiles = {}
+    files_len = len(files)
+
+    def ignore_append(ignored):
+        """
+        Append a file path to a file with all ignored files.
+        """
+        with open(f'ignored.txt', 'a') as out:
+            out.write(fname)
+            out.write('\n')
+
+    for idx, fname in enumerate(files):
+        print(f'Hashing {idx + 1} / {files_len}')
+
+        try:
+            try:
+                fhash = hash_file(fname)
+                if fhash not in hashfiles:
+                    hashfiles[fhash] = [fname]
+                else:
+                    hashfiles[fhash].extend([fname])
+            except MemoryError:
+                ignore_append(fname)
+        except FileNotFoundError:
+            ignore_append(fname)
+
+    return hashfiles

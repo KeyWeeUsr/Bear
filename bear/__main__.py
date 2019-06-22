@@ -5,7 +5,7 @@ Main module for running the package as a Python module from console:
 """
 
 import argparse
-from bear import hash_file, find_files
+from bear import hash_file, find_files, hash_files
 
 
 def main(args):
@@ -19,6 +19,9 @@ def main(args):
     elif args.traverse:
         for folder in args.traverse:
             print(find_files(folder))
+    elif args.hash:
+        for folder in args.hash:
+            print(hash_files(find_files(folder)))
 
 
 def run():
@@ -33,6 +36,10 @@ def run():
     parser.add_argument(
         '--traverse', metavar='FOLDER', type=str, nargs='+',
         help='list all files in these folders recursively'
+    )
+    parser.add_argument(
+        '--hash', metavar='FOLDER', type=str, nargs='+',
+        help='hash all files in these folders recursively'
     )
     main(parser.parse_args())
 
