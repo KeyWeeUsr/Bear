@@ -5,7 +5,7 @@ Main module for running the package as a Python module from console:
 """
 
 import argparse
-from bear import hash_file
+from bear import hash_file, find_files
 
 
 def main(args):
@@ -13,8 +13,12 @@ def main(args):
     Main function for calling the API from the package depending on
     the CLI options.
     """
-    for file in args.files:
-        print(hash_file(file))
+    if args.files:
+        for file in args.files:
+            print(hash_file(file))
+    elif args.traverse:
+        for folder in args.traverse:
+            print(find_files(folder))
 
 
 def run():
@@ -23,8 +27,12 @@ def run():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'files', metavar='FILE', type=str, nargs='+',
+        '--files', metavar='FILE', type=str, nargs='+',
         help='files for hashing'
+    )
+    parser.add_argument(
+        '--traverse', metavar='FOLDER', type=str, nargs='+',
+        help='list all files in these folders recursively'
     )
     main(parser.parse_args())
 
