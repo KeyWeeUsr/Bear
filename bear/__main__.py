@@ -35,8 +35,11 @@ def main(args):
         for folder in args.traverse:
             print(find_files(folder))
     elif args.hash:
-        for folder in args.hash:
-            print(filter_files(hash_files(find_files(folder))))
+        print(filter_files(hash_files([
+            file
+            for file_list in [find_files(folder) for folder in args.hash]
+            for file in file_list
+        ])))
 
 
 def run():
