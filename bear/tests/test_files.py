@@ -118,17 +118,25 @@ class HashCase(TestCase):
         Test hashing a list of files returning hashes + paths.
         """
 
-        file_hash = {'first': '123', 'second': '456'}
+        file_hash = {
+            'first': '123', 'second': '456',
+            'original': '789', 'duplicate': '789'
+        }
 
         def _side_effect(fname):
             return file_hash[fname]
 
         with patch('bear.hash_file', side_effect=_side_effect):
-            inp = ['first', 'second']
+            inp = ['first', 'second', 'original', 'duplicate']
             out = hash_files(inp)
-            self.assertEqual(out, {
-                val: [key] for key, val in file_hash.items()
-            })
+
+        expected = {}
+        for key, val in file_hash.items():
+            if val not in expected:
+                expected[val] = [key]
+            else:
+                expected[val].extend([key])
+        self.assertEqual(out, expected)
 
 
 if __name__ == '__main__':
