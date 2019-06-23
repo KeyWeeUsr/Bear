@@ -12,8 +12,19 @@ from bear import (
 )
 
 LOG = logging.getLogger(__name__)
-logging.basicConfig(level=logging.NOTSET)
-LOG.setLevel(logging.ERROR)
+logging.basicConfig(
+    level=logging.ERROR,
+    format='%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s'
+)
+
+
+def set_log_levels(level):
+    loggers = [
+        logging.getLogger(name)
+        for name in logging.root.manager.loggerDict
+    ]
+    for logger in loggers:
+        logger.setLevel(level)
 
 
 def main(args):
@@ -22,11 +33,11 @@ def main(args):
     the CLI options.
     """
     if 0 < args.verbose <= 1:
-        LOG.setLevel(logging.WARNING)
+        set_log_levels(logging.WARNING)
     elif 1 < args.verbose <= 2:
-        LOG.setLevel(logging.INFO)
+        set_log_levels(logging.INFO)
     elif args.verbose > 2:
-        LOG.setLevel(logging.DEBUG)
+        set_log_levels(logging.DEBUG)
 
     LOG.info('Setting up default logging level to %s', LOG.level)
     LOG.debug('CLI args: %s', args)

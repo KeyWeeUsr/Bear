@@ -2,13 +2,15 @@
 Main file for the Bear package.
 """
 
+import logging
 from hashlib import md5
-from os import walk, cpu_count
+from os import walk, cpu_count, getpid
 from os.path import exists, join, abspath, realpath
 from multiprocessing import Pool
 from datetime import datetime
 
 VERSION = '0.1.0'
+LOG = logging.getLogger(__name__)
 
 
 def hash_text(inp):
@@ -58,12 +60,12 @@ def hash_files(files):
         """
         Append a file path to a file with all ignored files.
         """
-        with open(f'ignored.txt', 'a') as out:
+        with open(f'{getpid()}_ignored.txt', 'a') as out:
             out.write(fname)
             out.write('\n')
 
     for idx, fname in enumerate(files):
-        print(f'Hashing {idx + 1} / {files_len}')
+        LOG.debug('Hashing %d / %d', idx + 1, files_len)
 
         try:
             try:
@@ -73,8 +75,12 @@ def hash_files(files):
                 else:
                     hashfiles[fhash].extend([fname])
             except MemoryError:
+                LOG.critical(
+                    'Not enough memory while hashing %s, skipping.', fname
+                )
                 ignore_append(fname)
         except FileNotFoundError:
+            LOG.warning('File %s not found, skipping.', fname)
             ignore_append(fname)
 
     return hashfiles
