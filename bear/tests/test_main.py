@@ -9,7 +9,15 @@ from bear.__main__ import run
 
 
 class MainCase(TestCase):
-    def test_hash_file(self):
+    """
+    Testing CLI parameters and __main__.py.
+    """
+
+    @staticmethod
+    def test_hash_file():
+        """
+        Test calling hashing function for a file.
+        """
         target = 'testpath'
         hash_file = patch('bear.__main__.hash_file')
         sysargv = patch('sys.argv', [__name__, '--files', target])
@@ -17,7 +25,11 @@ class MainCase(TestCase):
             run()
             mocked.assert_called_once_with(target)
 
-    def test_find_files(self):
+    @staticmethod
+    def test_find_files():
+        """
+        Test calling function for collecting all files in a folder.
+        """
         target = 'testpath'
         find_file = patch('bear.__main__.find_files')
         sysargv = patch('sys.argv', [__name__, '--traverse', target])
@@ -26,6 +38,10 @@ class MainCase(TestCase):
             mocked.assert_called_once_with(target)
 
     def test_hash_folder(self):
+        """
+        Test collecting all files in a folder and calling hashing
+        function on them.
+        """
         target = 'testpath'
         sysv = patch('sys.argv', [__name__, '--hash', target])
         hfile = patch('bear.__main__.hash_files')

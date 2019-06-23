@@ -9,13 +9,23 @@ from bear import hash_text, hash_file
 
 
 class HashCase(TestCase):
+    """
+    Test hashing functions.
+    """
+
     def test_hash_word(self):
+        """
+        Test hashing a string.
+        """
         self.assertEqual(
             '098f6bcd4621d373cade4e832627b4f6',
             hash_text('test'.encode('utf-8'))
         )
 
     def test_hash_file(self):
+        """
+        Test hashing bytes of a file.
+        """
         base = b'\xecO\xda\xad\x12\x85\xa1\xe1\xbd\xb7\xf1'
         (desc, path) = mkstemp(text=False)
         with open(desc, 'wb') as file:

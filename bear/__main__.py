@@ -19,6 +19,9 @@ logging.basicConfig(
 
 
 def set_log_levels(level):
+    """
+    Set log levels for all available loggers at runtime.
+    """
     loggers = [
         logging.getLogger(name)
         for name in logging.root.manager.loggerDict
