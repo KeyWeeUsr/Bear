@@ -4,7 +4,7 @@ Test file and folder manipulation.
 
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock, call
-from os.path import join
+from os.path import join, basename
 
 from bear import (
     find_files, filter_files, hash_files, ignore_append, find_duplicates
@@ -185,6 +185,57 @@ class HashCase(TestCase):
                 call(processes=4),
                 call().__enter__(),
                 call().__enter__().map(hash_files, []),
+                call().__exit__(None, None, None),
+            ])
+
+    def test_find_duplicates_chunks(self):
+        """
+        Test chunking list of files for multiple processes.
+        """
+        patch_pool = patch('bear.Pool')
+
+        files = [str(num) for num in range(15)]
+
+        def side_effect(folder):
+            return {
+                'a': files[:5],
+                'b': files[5:10],
+                'c': files[10:]
+            }[basename(folder)]
+
+        patch_find_files = patch('bear.find_files', side_effect=side_effect)
+
+        # pylint: disable=confusing-with-statement
+        with patch_pool as pool, patch_find_files:
+            self.assertEqual(find_duplicates(['a', 'b', 'c'], processes=1), {})
+            self.assertEqual(find_duplicates(['a', 'b', 'c'], processes=3), {})
+            self.assertEqual(find_duplicates(['a', 'b', 'c'], processes=4), {})
+
+            self.assertEqual([
+                # remove __iter__() calls because those return a tuple
+                # iterator instead of call().__enter__().map().__iter__()
+                item for item in pool.mock_calls if '__iter__' not in str(item)
+            ], [
+                call(processes=1),
+                call().__enter__(),
+                # all files to single process
+                call().__enter__().map(hash_files, [files]),
+                call().__exit__(None, None, None),
+
+                call(processes=3),
+                call().__enter__(),
+                # files chunked len / processors -> 15 // 3 chunks
+                call().__enter__().map(hash_files, [
+                    files[0:5], files[5:10], files[10:15]
+                ]),
+                call().__exit__(None, None, None),
+
+                call(processes=4),
+                call().__enter__(),
+                # files chunked len / processors -> 15 // 4 chunks
+                call().__enter__().map(hash_files, [
+                    files[0:3], files[3:6], files[6:9], files[9:12], files[12:]
+                ]),
                 call().__exit__(None, None, None),
             ])
 
