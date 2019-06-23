@@ -70,13 +70,17 @@ def main(args):
 
 
 class BearArgumentParser(ArgumentParser):
-    def print_help(self, *args):
-        print(LOGO)
-        super(BearArgumentParser, self).print_help(*args)
+    """
+    Custom ArgumentParser to display ASCII logo.
+    """
 
-    def error(self, *args):
+    def print_help(self, file=None):
         print(LOGO)
-        super(BearArgumentParser, self).error(*args)
+        super(BearArgumentParser, self).print_help(file)
+
+    def error(self, message):
+        print(LOGO)
+        super(BearArgumentParser, self).error(message)
 
 
 def run():
