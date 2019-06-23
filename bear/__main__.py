@@ -5,10 +5,10 @@ Main module for running the package as a Python module from console:
 """
 
 import logging
-import argparse
+from argparse import ArgumentParser
 from bear import (
     hash_file, find_files, hash_files, filter_files,
-    find_duplicates, output_duplicates
+    find_duplicates, output_duplicates, NAME, LOGO
 )
 
 LOG = logging.getLogger(__name__)
@@ -35,7 +35,12 @@ def main(args):
     Main function for calling the API from the package depending on
     the CLI options.
     """
-    if 0 < args.verbose <= 1:
+    if not args.quiet:
+        print(LOGO)
+
+    if args.quiet:
+        set_log_levels(logging.NOTSET)
+    elif 0 < args.verbose <= 1:
         set_log_levels(logging.WARNING)
     elif 1 < args.verbose <= 2:
         set_log_levels(logging.INFO)
@@ -64,11 +69,21 @@ def main(args):
         )
 
 
+class BearArgumentParser(ArgumentParser):
+    def print_help(self, *args):
+        print(LOGO)
+        super(BearArgumentParser, self).print_help(*args)
+
+    def error(self, *args):
+        print(LOGO)
+        super(BearArgumentParser, self).error(*args)
+
+
 def run():
     """
     CLI arguments parser for the main function.
     """
-    parser = argparse.ArgumentParser()
+    parser = BearArgumentParser(prog=NAME)
     parser.add_argument('-v', '--verbose', action='count', default=0)
     parser.add_argument(
         '--files', metavar='FILE', type=str, nargs='+',
@@ -93,6 +108,10 @@ def run():
     parser.add_argument(
         '-o', '--output', action='store', type=str,
         help='output file for the list of duplicates'
+    )
+    parser.add_argument(
+        '-q', '--quiet', action='store_true',
+        help='suppress all output'
     )
     main(parser.parse_args())
 

@@ -11,6 +11,12 @@ from datetime import datetime
 
 NAME = 'bear'
 VERSION = '0.2.0'
+LOGO = r"""
+ ,--.-'--.,.
+/¯  Bear   °¯;
+\ , ___ ,\¯ˇ¯
+|_;_\ /_;_\
+"""
 LOG = logging.getLogger(__name__)
 
 
