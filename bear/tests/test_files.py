@@ -101,7 +101,7 @@ class HashCase(TestCase):
     @staticmethod
     def test_hash_files_memoryerror():
         """
-        Test hashing a list of files returning hashes + paths.
+        Test hashing a list of files returning MemoryError on file.read().
         """
         def raise_memory_error(_):
             raise MemoryError()
@@ -112,6 +112,23 @@ class HashCase(TestCase):
             hash_files(inp)
             for file in inp:
                 ignore.assert_called_with(file)
+
+    def test_hash_files(self):
+        """
+        Test hashing a list of files returning hashes + paths.
+        """
+
+        file_hash = {'first': '123', 'second': '456'}
+
+        def _side_effect(fname):
+            return file_hash[fname]
+
+        with patch('bear.hash_file', side_effect=_side_effect):
+            inp = ['first', 'second']
+            out = hash_files(inp)
+            self.assertEqual(out, {
+                val: [key] for key, val in file_hash.items()
+            })
 
 
 if __name__ == '__main__':
