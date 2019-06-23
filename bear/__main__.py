@@ -103,7 +103,7 @@ def run():
     )
     parser.add_argument(
         '--duplicates', metavar='FOLDER', type=str, nargs='+',
-        help='hash all files in these folders recursively'
+        help='find all duplicated files in these folders recursively'
     )
     parser.add_argument(
         '-j', '--jobs', action='store', type=int, default=1,
