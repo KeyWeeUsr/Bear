@@ -32,5 +32,8 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: Implementation :: CPython'
-    ]
+    ],
+    extras_require={
+        'dev': ['pycodestyle', 'pylint', 'coverage']
+    }
 )
