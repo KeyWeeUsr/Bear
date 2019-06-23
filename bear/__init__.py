@@ -3,8 +3,9 @@ Main file for the Bear package.
 """
 
 from hashlib import md5
-from os import walk
-from os.path import exists, join
+from os import walk, cpu_count
+from os.path import exists, join, abspath, realpath
+from multiprocessing import Pool
 
 VERSION = '0.0.4'
 
@@ -85,3 +86,40 @@ def filter_files(files):
     """
 
     return {key: value for key, value in files.items() if len(value) > 1}
+
+
+def find_duplicates(folders, processes=1):
+    """
+    Find duplicates in multiple folders with multiprocessing.
+    """
+    # get user specified or max jobs
+    processes = processes if processes != 0 else cpu_count()
+
+    # traverse the input folders
+    found = [find_files(abspath(realpath(folder))) for folder in folders]
+    files = [file for file_list in found for file in file_list]
+    files_len = len(files)
+    chunk_size = int(files_len // processes)
+
+    # hash chunks of flat list files
+    with Pool(processes=processes) as pool:
+        results = pool.map(
+            hash_files, [
+                # chunk files into smaller lists
+                files[idx: idx + chunk_size]
+                for idx in range(files_len)
+                if idx % chunk_size == 0
+            ]
+        )
+
+    # join values from all jobs
+    files = {}
+    for result in results:
+        for key, val in result.items():
+            if key not in files:
+                files[key] = val
+            else:
+                files[key].extend(val)
+
+    # filter out non-duplicates
+    return filter_files(files)
