@@ -4,10 +4,10 @@ Basic setup.py
 """
 
 from setuptools import setup, find_packages
-from bear import VERSION
+from bear import VERSION, NAME
 
 setup(
-    name='Bear',
+    name=NAME,
     version=VERSION,
     description='Bear',
     long_description='Bear',
@@ -17,6 +17,9 @@ setup(
     author_email='keyweeusr@gmail.com',
     url='https://github.com/KeyWeeUsr/Bear',
     download_url=f'https://github.com/KeyWeeUsr/Bear/tarball/{VERSION}',
+    entry_points={
+        'console_scripts': [f'{NAME} = {NAME}.__main__:run']
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: '

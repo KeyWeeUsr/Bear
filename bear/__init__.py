@@ -9,6 +9,7 @@ from os.path import exists, join, abspath, realpath
 from multiprocessing import Pool
 from datetime import datetime
 
+NAME = 'bear'
 VERSION = '0.1.0'
 LOG = logging.getLogger(__name__)
 
