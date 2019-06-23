@@ -145,18 +145,18 @@ def output_duplicates(hashes, out=None):
     stamp = str(datetime.now()).replace(':', '_').replace(' ', '_')
     out = f'{stamp}_duplicates.txt' if not out else out
 
-    with open(out, 'wb') as out:
+    with open(out, 'wb') as fout:
         for key, val in hashes.items():
             if not isinstance(key, bytes):
                 key = key.encode('utf-8', 'ignore')
 
             # hash
-            out.write(key)
-            out.write(b'\n')
+            fout.write(key)
+            fout.write(b'\n')
 
             # tabbed file path(s), exclude invalid characters
             for item in val:
-                out.write(b'\t' + str(item).encode('utf-8', 'ignore') + b'\n')
+                fout.write(b'\t' + str(item).encode('utf-8', 'ignore') + b'\n')
 
             # separator
-            out.write(b'\n\n')
+            fout.write(b'\n\n')
