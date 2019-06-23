@@ -43,6 +43,10 @@ def find_files(folder):
 def hash_files(files):
     """
     Hash each of the file in the list.
+
+    In case of a MemoryError (limitation of e.g. 32-bit Python)
+    write out the file names in separate .txt files per PID
+    of the process used for hashing.
     """
 
     hashfiles = {}
