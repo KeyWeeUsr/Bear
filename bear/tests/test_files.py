@@ -113,6 +113,21 @@ class HashCase(TestCase):
             for file in inp:
                 ignore.assert_called_with(file)
 
+    @staticmethod
+    def test_hash_files_filenotfound():
+        """
+        Test hashing a list of non-existing files.
+        """
+        def raise_file_not_found(_):
+            raise FileNotFoundError()
+
+        patch_hash = patch('bear.hash_file', raise_file_not_found)
+        with patch_hash, patch('bear.ignore_append') as ignore:
+            inp = [None, None]
+            hash_files(inp)
+            for file in inp:
+                ignore.assert_called_with(file)
+
     def test_hash_files(self):
         """
         Test hashing a list of files returning hashes + paths.
