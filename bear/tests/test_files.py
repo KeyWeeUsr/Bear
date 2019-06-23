@@ -6,7 +6,7 @@ from unittest import TestCase, main
 from unittest.mock import patch
 from os.path import join
 
-from bear import find_files
+from bear import find_files, filter_files
 
 
 class HashCase(TestCase):
@@ -58,6 +58,22 @@ class HashCase(TestCase):
         patch_walk = patch('bear.walk', return_value=mocked_walk)
         with patch_walk, patch('bear.exists', return_value=True):
             self.assertEqual(find_files('_' * 30), expected)
+
+    def test_filter_files(self):
+        """
+        Test removing duplicates from dictionary of hashes + files.
+        """
+        hashes = {
+            'empty': [], 'original': ['file'],
+            'orig+dup': ['file', 'duplicate'],
+            'orig+2xdup': ['file', 'duplicate2']
+        }
+        self.assertEqual(
+            filter_files(hashes), dict(
+                item for item in hashes.items()
+                if item[0] not in ('empty', 'original')
+            )
+        )
 
 
 if __name__ == '__main__':
