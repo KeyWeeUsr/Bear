@@ -6,7 +6,10 @@ Main module for running the package as a Python module from console:
 
 import logging
 import argparse
-from bear import hash_file, find_files, hash_files, filter_files, find_duplicates
+from bear import (
+    hash_file, find_files, hash_files, filter_files,
+    find_duplicates, output_duplicates
+)
 
 LOG = logging.getLogger(__name__)
 logging.basicConfig(level=logging.NOTSET)
@@ -41,7 +44,10 @@ def main(args):
             for file in file_list
         ])))
     elif args.duplicates:
-        print(find_duplicates(args.duplicates, args.jobs))
+        output_duplicates(
+            find_duplicates(args.duplicates, args.jobs),
+            args.output
+        )
 
 
 def run():
@@ -69,6 +75,10 @@ def run():
     parser.add_argument(
         '-j', '--jobs', action='store', type=int, default=1,
         help='set how many processes will be spawn for hashing, 0=max'
+    )
+    parser.add_argument(
+        '-o', '--output', action='store', type=str,
+        help='output file for the list of duplicates'
     )
     main(parser.parse_args())
 

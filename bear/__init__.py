@@ -6,6 +6,7 @@ from hashlib import md5
 from os import walk, cpu_count
 from os.path import exists, join, abspath, realpath
 from multiprocessing import Pool
+from datetime import datetime
 
 VERSION = '0.1.0'
 
@@ -123,3 +124,32 @@ def find_duplicates(folders, processes=1):
 
     # filter out non-duplicates
     return filter_files(files)
+
+
+def output_duplicates(hashes, out=None):
+    """
+    Output a simple structure for the duplicates:
+
+    <hash>:
+    \t<path>
+    \t<path>
+    ...
+    """
+    stamp = str(datetime.now()).replace(':', '_').replace(' ', '_')
+    out = f'{stamp}_duplicates.txt' if not out else out
+
+    with open(out, 'wb') as out:
+        for key, val in hashes.items():
+            if not isinstance(key, bytes):
+                key = key.encode('utf-8', 'ignore')
+
+            # hash
+            out.write(key)
+            out.write(b'\n')
+
+            # tabbed file path(s), exclude invalid characters
+            for item in val:
+                out.write(b'\t' + str(item).encode('utf-8', 'ignore') + b'\n')
+
+            # separator
+            out.write(b'\n\n')
