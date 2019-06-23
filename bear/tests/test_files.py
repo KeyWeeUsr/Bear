@@ -3,10 +3,10 @@ Test file and folder manipulation.
 """
 
 from unittest import TestCase, main
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock, call
 from os.path import join
 
-from bear import find_files, filter_files, hash_files
+from bear import find_files, filter_files, hash_files, ignore_append
 
 
 class HashCase(TestCase):
@@ -74,6 +74,29 @@ class HashCase(TestCase):
                 if item[0] not in ('empty', 'original')
             )
         )
+
+    @staticmethod
+    def test_ignore_append():
+        """
+        Test writing ignored path to a file.
+        """
+        pid = 12345
+        patch_pid = patch('bear.getpid', return_value=pid)
+
+        file_obj = MagicMock()
+        mocked_open_inst = MagicMock(
+            __enter__=MagicMock(return_value=file_obj)
+        )
+        patch_open = patch(
+            'builtins.open', return_value=mocked_open_inst
+        )
+
+        with patch_pid, patch_open as mocked_open:
+            ignore_append('lalala')
+
+            mocked_open.assert_called_once_with(f'{pid}_ignored.txt', 'a')
+
+            file_obj.write.assert_has_calls([call('lalala'), call('\n')])
 
     @staticmethod
     def test_hash_files_memoryerror():
