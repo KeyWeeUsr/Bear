@@ -1,0 +1,16 @@
+sudo: required
+
+language: python
+python:
+    - "3.6"
+
+jobs:
+    include:
+        - stage: style
+          script:
+              - pip install --editable .[ci,dev]
+              - python check.py
+              - coveralls || true
+
+stages:
+    - style

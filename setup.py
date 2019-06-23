@@ -34,6 +34,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython'
     ],
     extras_require={
-        'dev': ['pycodestyle', 'pylint', 'coverage']
+        'dev': ['pycodestyle', 'pylint', 'coverage'],
+        'ci': ['coveralls']
     }
 )
