@@ -62,7 +62,7 @@ def hash_files(files):
         Append a file path to a file with all ignored files.
         """
         with open(f'{getpid()}_ignored.txt', 'a') as out:
-            out.write(fname)
+            out.write(ignored)
             out.write('\n')
 
     for idx, fname in enumerate(files):
