@@ -7,7 +7,7 @@ from os import walk, cpu_count
 from os.path import exists, join, abspath, realpath
 from multiprocessing import Pool
 
-VERSION = '0.0.4'
+VERSION = '0.1.0'
 
 
 def hash_text(inp):
