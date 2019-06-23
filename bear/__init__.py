@@ -45,6 +45,15 @@ def find_files(folder):
     ]
 
 
+def ignore_append(ignored):
+    """
+    Append a file path to a file with all ignored files.
+    """
+    with open(f'{getpid()}_ignored.txt', 'a') as out:
+        out.write(ignored)
+        out.write('\n')
+
+
 def hash_files(files):
     """
     Hash each of the file in the list.
@@ -56,14 +65,6 @@ def hash_files(files):
 
     hashfiles = {}
     files_len = len(files)
-
-    def ignore_append(ignored):
-        """
-        Append a file path to a file with all ignored files.
-        """
-        with open(f'{getpid()}_ignored.txt', 'a') as out:
-            out.write(ignored)
-            out.write('\n')
 
     for idx, fname in enumerate(files):
         LOG.debug('Hashing %d / %d', idx + 1, files_len)

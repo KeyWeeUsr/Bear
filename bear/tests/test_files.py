@@ -6,7 +6,7 @@ from unittest import TestCase, main
 from unittest.mock import patch
 from os.path import join
 
-from bear import find_files, filter_files
+from bear import find_files, filter_files, hash_files
 
 
 class HashCase(TestCase):
@@ -74,6 +74,21 @@ class HashCase(TestCase):
                 if item[0] not in ('empty', 'original')
             )
         )
+
+    @staticmethod
+    def test_hash_files_memoryerror():
+        """
+        Test hashing a list of files returning hashes + paths.
+        """
+        def raise_memory_error(_):
+            raise MemoryError()
+
+        patch_hash = patch('bear.hash_file', raise_memory_error)
+        with patch_hash, patch('bear.ignore_append') as ignore:
+            inp = [None, None]
+            hash_files(inp)
+            for file in inp:
+                ignore.assert_called_with(file)
 
 
 if __name__ == '__main__':
