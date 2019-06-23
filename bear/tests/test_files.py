@@ -6,7 +6,9 @@ from unittest import TestCase, main
 from unittest.mock import patch, MagicMock, call
 from os.path import join
 
-from bear import find_files, filter_files, hash_files, ignore_append
+from bear import (
+    find_files, filter_files, hash_files, ignore_append, find_duplicates
+)
 
 
 class HashCase(TestCase):
@@ -152,6 +154,39 @@ class HashCase(TestCase):
             else:
                 expected[val].extend([key])
         self.assertEqual(out, expected)
+
+    def test_find_duplicates_jobs(self):
+        """
+        Test finding duplicates using correct job count from parameter.
+        """
+        max_cpu = 666
+        patch_cpu = patch('bear.cpu_count', return_value=max_cpu)
+        patch_pool = patch('bear.Pool')
+        with patch_cpu, patch_pool as pool:
+            self.assertEqual(find_duplicates([], processes=1), {})
+            self.assertEqual(find_duplicates([], processes=0), {})
+            self.assertEqual(find_duplicates([], processes=4), {})
+
+            self.assertEqual([
+                # remove __iter__() calls because those return a tuple
+                # iterator instead of call().__enter__().map().__iter__()
+                item for item in pool.mock_calls if '__iter__' not in str(item)
+            ], [
+                call(processes=1),
+                call().__enter__(),
+                call().__enter__().map(hash_files, []),
+                call().__exit__(None, None, None),
+
+                call(processes=666),
+                call().__enter__(),
+                call().__enter__().map(hash_files, []),
+                call().__exit__(None, None, None),
+
+                call(processes=4),
+                call().__enter__(),
+                call().__enter__().map(hash_files, []),
+                call().__exit__(None, None, None),
+            ])
 
 
 if __name__ == '__main__':
