@@ -188,6 +188,26 @@ class HashCase(TestCase):
                 call().__exit__(None, None, None),
             ])
 
+    def test_find_duplicates_join(self):
+        """
+        Test joining duplicates from multiple jobs.
+        """
+        mock_pool = MagicMock(**{
+            '__enter__.return_value.map.return_value': [
+                {'123': ['original'], '456': ['ori', 'dupli']},
+                {'123': ['duplicate']},
+                {'789': ['original'], '012': ['orig', 'dup']}
+            ]
+        })
+        patch_pool = patch('bear.Pool', return_value=mock_pool)
+        with patch_pool:
+            # 789 is single-file original, ignored in filter_files()
+            self.assertEqual(find_duplicates([], processes=2), {
+                '012': ['orig', 'dup'],
+                '123': ['original', 'duplicate'],
+                '456': ['ori', 'dupli']
+            })
+
 
 if __name__ == '__main__':
     main()
