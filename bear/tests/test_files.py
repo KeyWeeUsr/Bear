@@ -7,7 +7,8 @@ from unittest.mock import patch, MagicMock, call
 from os.path import join, basename
 
 from bear import (
-    find_files, filter_files, hash_files, ignore_append, find_duplicates
+    find_files, filter_files, hash_files, ignore_append, find_duplicates,
+    output_duplicates
 )
 
 
@@ -258,6 +259,54 @@ class HashCase(TestCase):
                 '123': ['original', 'duplicate'],
                 '456': ['ori', 'dupli']
             })
+
+    @staticmethod
+    def test_find_duplicates_output():
+        """
+        Test outputing duplicates to file.
+        """
+        hashes = {
+            '012': ['orig', 'dup'],
+            b'123': ['original', 'duplicate'],
+            '456': ['ori', 'dupli']
+        }
+
+        file_obj = MagicMock()
+        mocked_open_inst = MagicMock(
+            __enter__=MagicMock(return_value=file_obj)
+        )
+        patch_open = patch(
+            'builtins.open', return_value=mocked_open_inst
+        )
+        now = '12345'
+        patch_now = patch('bear.datetime', now=MagicMock(return_value=now))
+
+        def assert_write_hashes(mock_obj):
+            calls = []
+            for key, value in hashes.items():
+                calls += [
+                    call(
+                        key.encode('utf-8')
+                        if not isinstance(key, bytes) else key
+                    ), call(b'\n')
+                ]
+                calls += [
+                    call(b'\t' + val.encode('utf-8') + b'\n')
+                    for val in value
+                ]
+                calls += [call(b'\n\n')]
+            mock_obj.assert_has_calls(calls)
+
+        with patch_now, patch_open as mocked_open:
+            output_duplicates(hashes)
+            mocked_open.assert_called_once_with(f'{now}_duplicates.txt', 'wb')
+            assert_write_hashes(file_obj.write)
+
+        with patch_now, patch_open as mocked_open:
+            out = 'custom.txt'
+            output_duplicates(hashes, out=out)
+            mocked_open.assert_called_once_with(out, 'wb')
+            assert_write_hashes(file_obj.write)
 
 
 if __name__ == '__main__':
