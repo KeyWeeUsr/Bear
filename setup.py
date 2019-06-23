@@ -21,7 +21,7 @@ setup(
         'console_scripts': [f'{NAME} = {NAME}.__main__:run']
     },
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: '
         'GNU Affero General Public License v3 or later (AGPLv3+)',
         'Environment :: Console',
