@@ -9,7 +9,7 @@ from bear import VERSION, NAME
 setup(
     name=NAME,
     version=VERSION,
-    description='Bear',
+    description='Bear - the decluttering deduplicator',
     long_description='Bear',
     long_description_content_type="text/markdown",
     packages=find_packages(),
