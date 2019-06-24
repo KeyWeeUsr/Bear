@@ -5,6 +5,7 @@ Main module for running the package as a Python module from console:
 """
 
 import logging
+from os import stat, remove
 from argparse import ArgumentParser
 from bear import (
     hash_file, find_files, hash_files, filter_files,
@@ -28,6 +29,31 @@ def set_log_levels(level):
     ]
     for logger in loggers:
         logger.setLevel(level)
+
+
+def handle_duplicates(args):
+    """
+    Handle --duplicate related behavior.
+    """
+    duplicates = find_duplicates(args.duplicates, args.jobs)
+    output_duplicates(duplicates, args.output)
+    if args.keep_oldest:
+        for dups in duplicates.values():
+            # oldest == smallest timestamp
+            without_oldest = sorted(
+                dups, key=lambda item: stat(item).st_mtime
+            )[1:]
+            for file in without_oldest:
+                remove(file)
+
+    elif args.keep_newest:
+        for dups in duplicates.values():
+            # reverse for oldest
+            without_newest = sorted(
+                dups, key=lambda item: stat(item).st_mtime, reverse=True
+            )[1:]
+            for file in without_newest:
+                remove(file)
 
 
 def main(args):
@@ -63,10 +89,7 @@ def main(args):
             for file in file_list
         ])))
     elif args.duplicates:
-        output_duplicates(
-            find_duplicates(args.duplicates, args.jobs),
-            args.output
-        )
+        handle_duplicates(args)
 
 
 class BearArgumentParser(ArgumentParser):
@@ -116,6 +139,14 @@ def run():
     parser.add_argument(
         '-q', '--quiet', action='store_true',
         help='suppress all output'
+    )
+    parser.add_argument(
+        '-e', '--keep-oldest', action='store_true',
+        help='in combination with --duplicates keep only single oldest file'
+    )
+    parser.add_argument(
+        '-n', '--keep-newest', action='store_true',
+        help='in combination with --duplicates keep only single newest file'
     )
     main(parser.parse_args())
 
