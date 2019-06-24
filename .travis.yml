@@ -12,5 +12,10 @@ jobs:
               - python check.py
               - coveralls || true
 
+        - stage: deploy
+          script: python release.py
+
 stages:
     - style
+    - name: deploy
+      if: (branch = master) AND (NOT (type IN (push, pull_request)))

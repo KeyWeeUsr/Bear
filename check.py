@@ -18,7 +18,7 @@ CASES = [[
 ], [
     'pylint',
     '--jobs=0',
-    'check.py', 'setup.py', PKG
+    'release.py', 'check.py', 'setup.py', PKG
 ], [
     'coverage', 'run', '--branch', '--source', PKG,
     '-m', 'unittest', 'discover',

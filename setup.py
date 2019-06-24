@@ -3,14 +3,30 @@
 Basic setup.py
 """
 
+from os.path import abspath, dirname, join, relpath
 from setuptools import setup, find_packages
 from bear import VERSION, NAME
+
+
+ROOT = abspath(dirname(__file__))
+REPO = 'https://github.com/KeyWeeUsr/Bear'
+PKG = join(ROOT, NAME)
+
+
+with open(join(ROOT, "README.md")) as fd:
+    README = fd.read()
+
+
+DATA = [
+    relpath('README.md', ROOT)
+]
+
 
 setup(
     name=NAME,
     version=VERSION,
     description='Bear - the decluttering deduplicator',
-    long_description='Bear',
+    long_description=README,
     long_description_content_type="text/markdown",
     packages=find_packages(),
     author='Peter Badida',
@@ -31,10 +47,19 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: Implementation :: CPython'
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Typing :: Typed'
     ],
     extras_require={
         'dev': ['pycodestyle', 'pylint', 'coverage'],
-        'ci': ['coveralls']
-    }
+        'ci': ['coveralls'],
+        'release': [
+            'setuptools', 'wheel',
+            'pycodestyle', 'pylint',
+            'coverage', 'coveralls',
+            'twine'
+        ]
+    },
+    include_package_data=True,
+    data_files=[(NAME, DATA)]
 )
