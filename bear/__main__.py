@@ -113,19 +113,19 @@ def run():
     parser = BearArgumentParser(prog=NAME)
     parser.add_argument('-v', '--verbose', action='count', default=0)
     parser.add_argument(
-        '--files', metavar='FILE', type=str, nargs='+',
+        '-f', '--files', metavar='FILE', type=str, nargs='+',
         help='files for hashing'
     )
     parser.add_argument(
-        '--traverse', metavar='FOLDER', type=str, nargs='+',
+        '-t', '--traverse', metavar='FOLDER', type=str, nargs='+',
         help='list all files in these folders recursively'
     )
     parser.add_argument(
-        '--hash', metavar='FOLDER', type=str, nargs='+',
+        '-s', '--hash', metavar='FOLDER', type=str, nargs='+',
         help='hash all files in these folders recursively'
     )
     parser.add_argument(
-        '--duplicates', metavar='FOLDER', type=str, nargs='+',
+        '-d', '--duplicates', metavar='FOLDER', type=str, nargs='+',
         help='find all duplicated files in these folders recursively'
     )
     parser.add_argument(
