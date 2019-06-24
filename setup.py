@@ -23,7 +23,7 @@ DATA = [
 
 
 setup(
-    name=NAME,
+    name='thebear',
     version=VERSION,
     description='Bear - the decluttering deduplicator',
     long_description=README,
