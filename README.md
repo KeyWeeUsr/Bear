@@ -36,6 +36,7 @@ packages are planned.
 
 You can install a stable version with:
 
+    pip install thebear
     pip install https://github.com/KeyWeeUsr/bear/zipball/stable
 
 For the cutting-edge available changes use `master` branch:
