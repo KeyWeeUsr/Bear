@@ -31,8 +31,21 @@ def hash_file(path):
     """
     Open a file, read its contents and return MD5 hash.
     """
-    with open(path, 'rb') as file:
-        contents = file.read()
+    try:
+        with open(path, 'rb') as file:
+            contents = file.read()
+    except PermissionError:
+        LOG.critical(
+            'Could not open %s due to permission error! %s',
+            path, traceback.format_exc()
+        )
+        ignore_append(path)
+    except FileNotFoundError:
+        LOG.warning('Could not find file %s! Did you delete it?', path)
+        ignore_append(path)
+    except OSError:
+        LOG.critical('Could not open %s! %s', path, traceback.format_exc())
+        ignore_append(path)
     return hash_text(contents)
 
 
@@ -41,14 +54,18 @@ def find_files(folder):
     Walk a folder to create a flat list of files.
     """
 
-    if not exists(folder):
-        raise Exception('Folder does not exist')
+    result = []
 
-    return [
+    if not exists(folder):
+        LOG.critical('Folder %s does not exist! Skipping.', folder)
+        return result
+
+    result = [
         join(name, fname)
         for name, folder, files in walk(folder)
         for fname in files
     ]
+    return result
 
 
 def ignore_append(ignored):
@@ -76,19 +93,15 @@ def hash_files(files):
         LOG.debug('Hashing %d / %d', idx + 1, files_len)
 
         try:
-            try:
-                fhash = hash_file(fname)
-                if fhash not in hashfiles:
-                    hashfiles[fhash] = [fname]
-                else:
-                    hashfiles[fhash].extend([fname])
-            except MemoryError:
-                LOG.critical(
-                    'Not enough memory while hashing %s, skipping.', fname
-                )
-                ignore_append(fname)
-        except FileNotFoundError:
-            LOG.warning('File %s not found, skipping.', fname)
+            fhash = hash_file(fname)
+            if fhash not in hashfiles:
+                hashfiles[fhash] = [fname]
+            else:
+                hashfiles[fhash].extend([fname])
+        except MemoryError:
+            LOG.critical(
+                'Not enough memory while hashing %s, skipping.', fname
+            )
             ignore_append(fname)
 
     return hashfiles
