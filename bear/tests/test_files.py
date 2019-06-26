@@ -17,12 +17,14 @@ class HashCase(TestCase):
     Test file and folder manipulation functions.
     """
 
-    def test_find_files_nonexisting(self):
+    @staticmethod
+    def test_find_files_nonexisting():
         """
         Test calling bear.find_files on non-existing folder.
         """
-        with self.assertRaises(Exception):
+        with patch('bear.LOG.critical') as critical:
             find_files('_' * 30)
+            critical.assert_called_once()
 
     def test_find_files(self):
         """
@@ -116,20 +118,16 @@ class HashCase(TestCase):
             for file in inp:
                 ignore.assert_called_with(file)
 
-    @staticmethod
-    def test_hash_files_filenotfound():
+    def test_hash_files_filenotfound(self):
         """
         Test hashing a list of non-existing files.
         """
-        def raise_file_not_found(_):
-            raise FileNotFoundError()
-
-        patch_hash = patch('bear.hash_file', raise_file_not_found)
-        with patch_hash, patch('bear.ignore_append') as ignore:
-            inp = [None, None]
+        patch_log = patch('bear.LOG.warning')
+        with patch_log as warning, patch('bear.ignore_append') as ignore:
+            inp = ['does_not_exist_123', 'does_not_exist_456']
             hash_files(inp)
-            for file in inp:
-                ignore.assert_called_with(file)
+            self.assertEqual(ignore.mock_calls, [call(inp[0]), call(inp[1])])
+            self.assertEqual(len(warning.mock_calls), len(inp))
 
     def test_hash_files(self):
         """

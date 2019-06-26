@@ -3,6 +3,7 @@ Main file for the Bear package.
 """
 
 import logging
+import traceback
 from hashlib import md5
 from os import walk, cpu_count, getpid
 from os.path import exists, join, abspath, realpath
@@ -31,9 +32,11 @@ def hash_file(path):
     """
     Open a file, read its contents and return MD5 hash.
     """
+    result = ''
     try:
         with open(path, 'rb') as file:
             contents = file.read()
+        result = hash_text(contents)
     except PermissionError:
         LOG.critical(
             'Could not open %s due to permission error! %s',
@@ -46,7 +49,7 @@ def hash_file(path):
     except OSError:
         LOG.critical('Could not open %s! %s', path, traceback.format_exc())
         ignore_append(path)
-    return hash_text(contents)
+    return result
 
 
 def find_files(folder):
@@ -94,6 +97,8 @@ def hash_files(files):
 
         try:
             fhash = hash_file(fname)
+            if not fhash:
+                continue
             if fhash not in hashfiles:
                 hashfiles[fhash] = [fname]
             else:
