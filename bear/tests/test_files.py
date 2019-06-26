@@ -104,20 +104,37 @@ class HashCase(TestCase):
 
             file_obj.write.assert_has_calls([call('lalala'), call('\n')])
 
-    @staticmethod
-    def test_hash_files_memoryerror():
+    def test_hash_files_memoryerror(self):
         """
         Test hashing a list of files returning MemoryError on file.read().
         """
-        def raise_memory_error(_):
+        def raise_memory_error(*_):
             raise MemoryError()
 
-        patch_hash = patch('bear.hashing.hash_file', raise_memory_error)
-        with patch_hash, patch('bear.hashing.ignore_append') as ignore:
-            inp = [None, None]
+        patch_log = patch('bear.hashing.LOG.critical')
+        patch_hash = patch('builtins.open', raise_memory_error)
+        patch_ignore = patch('bear.hashing.ignore_append')
+        with patch_hash, patch_log as critical, patch_ignore as ignore:
+            inp = ['Nonefile', 'someNone']
             hash_files(inp)
-            for file in inp:
-                ignore.assert_called_with(file)
+            self.assertEqual(ignore.mock_calls, [call(inp[0]), call(inp[1])])
+            self.assertEqual(len(critical.mock_calls), len(inp))
+
+    def test_hash_files_permissionerror(self):
+        """
+        Test hashing a list of files returning PermissionError on file.read().
+        """
+        def raise_permission_error(*_):
+            raise PermissionError()
+
+        patch_log = patch('bear.hashing.LOG.critical')
+        patch_hash = patch('builtins.open', raise_permission_error)
+        patch_ignore = patch('bear.hashing.ignore_append')
+        with patch_hash, patch_log as critical, patch_ignore as ignore:
+            inp = ['lalala', 'somefile']
+            hash_files(inp)
+            self.assertEqual(ignore.mock_calls, [call(inp[0]), call(inp[1])])
+            self.assertEqual(len(critical.mock_calls), len(inp))
 
     def test_hash_files_filenotfound(self):
         """
@@ -130,6 +147,22 @@ class HashCase(TestCase):
             hash_files(inp)
             self.assertEqual(ignore.mock_calls, [call(inp[0]), call(inp[1])])
             self.assertEqual(len(warning.mock_calls), len(inp))
+
+    def test_hash_files_oserror(self):
+        """
+        Test hashing a list of files returning OSError on file.read().
+        """
+        def raise_os_error(*_):
+            raise OSError()
+
+        patch_log = patch('bear.hashing.LOG.critical')
+        patch_hash = patch('builtins.open', raise_os_error)
+        patch_ignore = patch('bear.hashing.ignore_append')
+        with patch_hash, patch_log as critical, patch_ignore as ignore:
+            inp = ['lalala', 'somefile']
+            hash_files(inp)
+            self.assertEqual(ignore.mock_calls, [call(inp[0]), call(inp[1])])
+            self.assertEqual(len(critical.mock_calls), len(inp))
 
     def test_hash_files(self):
         """
