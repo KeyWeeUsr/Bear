@@ -6,9 +6,10 @@ from unittest import TestCase, main
 from unittest.mock import patch, MagicMock, call
 from os.path import join, basename
 
-from bear import (
-    find_files, filter_files, hash_files, ignore_append, find_duplicates,
-    output_duplicates
+from bear.hashing import hash_files
+from bear.common import ignore_append
+from bear.output import (
+    find_files, filter_files, find_duplicates, output_duplicates
 )
 
 
@@ -22,7 +23,7 @@ class HashCase(TestCase):
         """
         Test calling bear.find_files on non-existing folder.
         """
-        with patch('bear.LOG.critical') as critical:
+        with patch('bear.output.LOG.critical') as critical:
             find_files('_' * 30)
             critical.assert_called_once()
 
@@ -60,8 +61,8 @@ class HashCase(TestCase):
             for fname in files
         ]
 
-        patch_walk = patch('bear.walk', return_value=mocked_walk)
-        with patch_walk, patch('bear.exists', return_value=True):
+        patch_walk = patch('bear.output.walk', return_value=mocked_walk)
+        with patch_walk, patch('bear.output.exists', return_value=True):
             self.assertEqual(find_files('_' * 30), expected)
 
     def test_filter_files(self):
@@ -86,7 +87,7 @@ class HashCase(TestCase):
         Test writing ignored path to a file.
         """
         pid = 12345
-        patch_pid = patch('bear.getpid', return_value=pid)
+        patch_pid = patch('bear.common.getpid', return_value=pid)
 
         file_obj = MagicMock()
         mocked_open_inst = MagicMock(
@@ -111,8 +112,8 @@ class HashCase(TestCase):
         def raise_memory_error(_):
             raise MemoryError()
 
-        patch_hash = patch('bear.hash_file', raise_memory_error)
-        with patch_hash, patch('bear.ignore_append') as ignore:
+        patch_hash = patch('bear.hashing.hash_file', raise_memory_error)
+        with patch_hash, patch('bear.hashing.ignore_append') as ignore:
             inp = [None, None]
             hash_files(inp)
             for file in inp:
@@ -122,8 +123,9 @@ class HashCase(TestCase):
         """
         Test hashing a list of non-existing files.
         """
-        patch_log = patch('bear.LOG.warning')
-        with patch_log as warning, patch('bear.ignore_append') as ignore:
+        patch_log = patch('bear.hashing.LOG.warning')
+        patch_ignore = patch('bear.hashing.ignore_append')
+        with patch_log as warning, patch_ignore as ignore:
             inp = ['does_not_exist_123', 'does_not_exist_456']
             hash_files(inp)
             self.assertEqual(ignore.mock_calls, [call(inp[0]), call(inp[1])])
@@ -142,7 +144,7 @@ class HashCase(TestCase):
         def _side_effect(fname):
             return file_hash[fname]
 
-        with patch('bear.hash_file', side_effect=_side_effect):
+        with patch('bear.hashing.hash_file', side_effect=_side_effect):
             inp = ['first', 'second', 'original', 'duplicate']
             out = hash_files(inp)
 
@@ -159,8 +161,8 @@ class HashCase(TestCase):
         Test finding duplicates using correct job count from parameter.
         """
         max_cpu = 666
-        patch_cpu = patch('bear.cpu_count', return_value=max_cpu)
-        patch_pool = patch('bear.Pool')
+        patch_cpu = patch('bear.output.cpu_count', return_value=max_cpu)
+        patch_pool = patch('bear.output.Pool')
         with patch_cpu, patch_pool as pool:
             self.assertEqual(find_duplicates([], processes=1), {})
             self.assertEqual(find_duplicates([], processes=0), {})
@@ -191,7 +193,7 @@ class HashCase(TestCase):
         """
         Test chunking list of files for multiple processes.
         """
-        patch_pool = patch('bear.Pool')
+        patch_pool = patch('bear.output.Pool')
 
         files = [str(num) for num in range(15)]
 
@@ -202,7 +204,9 @@ class HashCase(TestCase):
                 'c': files[10:]
             }[basename(folder)]
 
-        patch_find_files = patch('bear.find_files', side_effect=side_effect)
+        patch_find_files = patch(
+            'bear.output.find_files', side_effect=side_effect
+        )
 
         # pylint: disable=confusing-with-statement
         with patch_pool as pool, patch_find_files:
@@ -249,7 +253,7 @@ class HashCase(TestCase):
                 {'789': ['original'], '012': ['orig', 'dup']}
             ]
         })
-        patch_pool = patch('bear.Pool', return_value=mock_pool)
+        patch_pool = patch('bear.output.Pool', return_value=mock_pool)
         with patch_pool:
             # 789 is single-file original, ignored in filter_files()
             self.assertEqual(find_duplicates([], processes=2), {
@@ -277,7 +281,9 @@ class HashCase(TestCase):
             'builtins.open', return_value=mocked_open_inst
         )
         now = '12345'
-        patch_now = patch('bear.datetime', now=MagicMock(return_value=now))
+        patch_now = patch(
+            'bear.output.datetime', now=MagicMock(return_value=now)
+        )
 
         def assert_write_hashes(mock_obj):
             calls = []

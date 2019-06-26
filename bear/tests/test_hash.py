@@ -5,7 +5,7 @@ Test hashing of specific file contents.
 from unittest import TestCase, main
 from tempfile import mkstemp
 from os import remove
-from bear import hash_text, hash_file
+from bear.hashing import hash_text, hash_file
 
 
 class HashCase(TestCase):

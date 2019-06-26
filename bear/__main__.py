@@ -10,9 +10,10 @@ from argparse import ArgumentParser, Namespace
 
 from ensure import ensure_annotations
 
-from bear import (
-    hash_file, find_files, hash_files, filter_files,
-    find_duplicates, output_duplicates, NAME, LOGO
+from bear import NAME, LOGO
+from bear.hashing import hash_file, hash_files
+from bear.output import (
+    find_files, filter_files, find_duplicates, output_duplicates
 )
 
 LOG = logging.getLogger(__name__)
