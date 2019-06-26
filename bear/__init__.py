@@ -10,6 +10,8 @@ from os.path import exists, join, abspath, realpath
 from multiprocessing import Pool
 from datetime import datetime
 
+from ensure import ensure_annotations
+
 NAME = 'bear'
 VERSION = '0.2.0'
 LOGO = r"""
@@ -21,14 +23,16 @@ LOGO = r"""
 LOG = logging.getLogger(__name__)
 
 
-def hash_text(inp):
+@ensure_annotations
+def hash_text(inp: bytes) -> str:
     """
     Hash simple string of text.
     """
     return md5(inp).hexdigest()
 
 
-def hash_file(path):
+@ensure_annotations
+def hash_file(path: str) -> str:
     """
     Open a file, read its contents and return MD5 hash.
     """
@@ -52,7 +56,8 @@ def hash_file(path):
     return result
 
 
-def find_files(folder):
+@ensure_annotations
+def find_files(folder: str) -> list:
     """
     Walk a folder to create a flat list of files.
     """
@@ -71,7 +76,8 @@ def find_files(folder):
     return result
 
 
-def ignore_append(ignored):
+@ensure_annotations
+def ignore_append(ignored: str):
     """
     Append a file path to a file with all ignored files.
     """
@@ -80,7 +86,8 @@ def ignore_append(ignored):
         out.write('\n')
 
 
-def hash_files(files):
+@ensure_annotations
+def hash_files(files: list) -> dict:
     """
     Hash each of the file in the list.
 
@@ -112,7 +119,8 @@ def hash_files(files):
     return hashfiles
 
 
-def filter_files(files):
+@ensure_annotations
+def filter_files(files: dict) -> dict:
     """
     Filter out hashes with only single file connected to them to prevent
     having all of the file hashes even if the files are not duplicated.
@@ -121,7 +129,8 @@ def filter_files(files):
     return {key: value for key, value in files.items() if len(value) > 1}
 
 
-def find_duplicates(folders, processes=1):
+@ensure_annotations
+def find_duplicates(folders: list, processes: int = 1) -> dict:
     """
     Find duplicates in multiple folders with multiprocessing.
     """
@@ -158,7 +167,8 @@ def find_duplicates(folders, processes=1):
     return filter_files(files)
 
 
-def output_duplicates(hashes, out=None):
+@ensure_annotations
+def output_duplicates(hashes: dict, out: str = None):
     """
     Output a simple structure for the duplicates:
 

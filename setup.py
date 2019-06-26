@@ -50,6 +50,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Typing :: Typed'
     ],
+    install_requires=['ensure'],
     extras_require={
         'dev': ['pycodestyle', 'pylint', 'coverage'],
         'ci': ['coveralls'],

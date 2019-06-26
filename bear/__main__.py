@@ -6,7 +6,10 @@ Main module for running the package as a Python module from console:
 
 import logging
 from os import stat, remove
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
+
+from ensure import ensure_annotations
+
 from bear import (
     hash_file, find_files, hash_files, filter_files,
     find_duplicates, output_duplicates, NAME, LOGO
@@ -19,7 +22,8 @@ logging.basicConfig(
 )
 
 
-def set_log_levels(level):
+@ensure_annotations
+def set_log_levels(level: int):
     """
     Set log levels for all available loggers at runtime.
     """
@@ -31,7 +35,8 @@ def set_log_levels(level):
         logger.setLevel(level)
 
 
-def handle_duplicates(args):
+@ensure_annotations
+def handle_duplicates(args: Namespace):
     """
     Handle --duplicate related behavior.
     """
@@ -56,7 +61,8 @@ def handle_duplicates(args):
                 remove(file)
 
 
-def main(args):
+@ensure_annotations
+def main(args: Namespace):
     """
     Main function for calling the API from the package depending on
     the CLI options.
