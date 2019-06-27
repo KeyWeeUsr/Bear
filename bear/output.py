@@ -82,7 +82,7 @@ def find_duplicates(folders: list, processes: int = 1) -> dict:
 
 
 @ensure_annotations
-def output_duplicates(hashes: dict, out: str = None):
+def output_duplicates(hashes: dict, out: str = ''):
     """
     Output a simple structure for the duplicates:
 

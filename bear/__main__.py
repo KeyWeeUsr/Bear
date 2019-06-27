@@ -140,7 +140,7 @@ def run():
         help='set how many processes will be spawn for hashing, 0=max'
     )
     parser.add_argument(
-        '-o', '--output', action='store', type=str,
+        '-o', '--output', action='store', type=str, default='',
         help='output file for the list of duplicates'
     )
     parser.add_argument(

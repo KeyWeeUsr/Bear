@@ -44,7 +44,6 @@ def hash_file(path: str) -> str:
     return result
 
 
-@ensure_annotations
 def hash_files(files: list) -> dict:
     """
     Hash each of the file in the list.
