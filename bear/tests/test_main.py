@@ -3,15 +3,32 @@ Test running module in CLI.
 """
 
 from unittest import TestCase, main
-from unittest.mock import patch
+from unittest.mock import patch, call, MagicMock
 
-from bear.__main__ import run
+from bear.__main__ import run, set_log_levels
 
 
 class MainCase(TestCase):
     """
     Testing CLI parameters and __main__.py.
     """
+
+    def test_global_log_level(self):
+        """
+        Test setting log level for all Bear loggers.
+        """
+        mock_logger = MagicMock()
+        patch_get = patch(
+            'bear.__main__.logging.getLogger',
+            return_value=mock_logger
+        )
+        with patch_get as get:
+            set_log_levels(9000)
+            self.assertEqual(get.mock_calls, [
+                call('bear.hashing'), call('bear'),
+                call('bear.output'), call('bear.__main__')
+            ])
+            self.assertEqual(mock_logger.mock_calls, [call.setLevel(9000)] * 4)
 
     @staticmethod
     def test_hash_file():
