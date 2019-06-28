@@ -45,7 +45,7 @@ def package_check():
 
 def package_clean():
     """Clean cache folders."""
-    run_proc(['pip', 'uninstall', '-y', NAME])
+    run_proc(['python', '-m', 'pip', 'uninstall', '-y', NAME])
 
     folders = [
         'dist', 'build', f'{NAME}.egg-info'
@@ -60,7 +60,7 @@ def package_clean():
 def package_install():
     """Install deps via installing the packages."""
     return run_proc([
-        'pip', 'install', '--upgrade',
+        'python', '-m', 'pip', 'install', '--upgrade',
         '--editable', '.[release]'
     ])
 
@@ -73,13 +73,14 @@ def package_dist():
 def package_upload():
     """Upload created distributions to PyPI."""
     return run_proc([
-        'twine', 'upload', '--repository-url', PYPI_REPO, 'dist/*'
+        'python', '-m', 'twine', 'upload',
+        '--repository-url', PYPI_REPO, 'dist/*'
     ])
 
 
 def _create_executable_unix():
     return run_proc([
-        'pyinstaller', '--name', NAME, '--clean',
+        'python', '-m', 'PyInstaller', '--name', NAME, '--clean',
         '--onefile', '--console', 'bear/__main__.py'
     ])
 
@@ -164,12 +165,18 @@ def _upload_executable(binary_name, upload_name):
 
 def upload_executable_linux():
     """Upload GNU/Linux executable to GitHub release page."""
-    return _upload_executable(NAME, f'{NAME}.{EXTENSIONS[sys.platform]}')
+    result = True
+    if sys.platform == 'linux':
+        result = _upload_executable(NAME, f'{NAME}.{EXTENSIONS[sys.platform]}')
+    return result
 
 
 def upload_executable_macos():
     """Upload GNU/Linux executable to GitHub release page."""
-    return _upload_executable(NAME, f'{NAME}.{EXTENSIONS[sys.platform]}')
+    result = True
+    if sys.platform == 'darwin':
+        result = _upload_executable(NAME, f'{NAME}.{EXTENSIONS[sys.platform]}')
+    return result
 
 
 CASES = [

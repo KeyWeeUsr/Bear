@@ -9,25 +9,25 @@ ROOT = dirname(abspath(__file__))
 PKG = join(ROOT, 'bear')
 
 CASES = [[
-    'pycodestyle',
+    'python', '-m', 'pycodestyle',
     '--ignore=none',
     '--show-source',
     '--count',
     '--max-line-length=79',
     ROOT
 ], [
-    'pylint',
+    'python', '-m', 'pylint',
     '--jobs=0',
     'release.py', 'check.py', 'setup.py', PKG
 ], [
-    'coverage', 'run', '--branch', '--source', PKG,
+    'python', '-m', 'coverage', 'run', '--branch', '--source', PKG,
     '-m', 'unittest', 'discover',
     '--failfast',
     '--catch',
     '--start-directory', join(PKG, 'tests'),
     '--top-level-directory', PKG
 ], [
-    'coverage', 'report', '--show-missing'
+    'python', '-m', 'coverage', 'report', '--show-missing'
 ]]
 
 
