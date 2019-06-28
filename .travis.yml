@@ -1,6 +1,10 @@
 sudo: required
 
 language: python
+os:
+    - linux
+    - osx
+
 python:
     - "3.6"
 
@@ -16,6 +20,10 @@ jobs:
           script: python release.py
 
 stages:
-    - style
+    # run this stage when not deploying for each branch+tag
+    - name: style
+      if: NOT (type = api)
+
+    # run only on master branch if triggered manually
     - name: deploy
       if: (branch = master) AND (NOT (type IN (push, pull_request)))

@@ -2,6 +2,7 @@
 Release handling for Bear.
 """
 
+import sys
 import json
 from subprocess import Popen
 from os import environ
@@ -18,6 +19,13 @@ RELEASE_DIR = join(ROOT, 'release')
 PYPI_REPO = environ.get('PYPI_REPO', 'https://upload.pypi.org/legacy/')
 GITHUB_API = 'https://api.github.com'
 GITHUB_REPO = 'KeyWeeUsr/Bear'
+EXTENSIONS = {
+    # meh... GitHub won't handle same-named binaries
+    # therefore MacOS vs GNU/Linux name collision
+    'linux': 'linux',
+    'darwin': 'macos',
+    'win32': 'exe'
+}
 
 
 def run_proc(args, options=None):
@@ -69,12 +77,27 @@ def package_upload():
     ])
 
 
-def create_executable_linux():
-    """Create a binary for GNU/Linux platform."""
+def _create_executable_unix():
     return run_proc([
         'pyinstaller', '--name', NAME, '--clean',
         '--onefile', '--console', 'bear/__main__.py'
     ])
+
+
+def create_executable_linux():
+    """Create a binary for GNU/Linux platform."""
+    result = True
+    if sys.platform == 'linux':
+        result = _create_executable_unix()
+    return result
+
+
+def create_executable_macos():
+    """Create a binary for MacOS platform."""
+    result = True
+    if sys.platform == 'darwin':
+        result = _create_executable_unix()
+    return result
 
 
 def create_github_release():
@@ -108,7 +131,7 @@ def create_github_release():
     return result
 
 
-def upload_executable_linux():
+def _upload_executable(binary_name, upload_name):
     """Upload GNU/Linux executable to GitHub release page."""
     import requests
 
@@ -120,10 +143,10 @@ def upload_executable_linux():
         }
     )
 
-    with open(join(ROOT, 'dist', NAME), 'rb') as file:
+    with open(join(ROOT, 'dist', binary_name), 'rb') as file:
         content = file.read()
 
-    asset_props = f'?name={NAME}&label={quote(platform())}'
+    asset_props = f'?name={upload_name}&label={quote(platform())}'
     resp = requests.post(
         resp.json()['upload_url'].replace('{?name,label}', asset_props),
         data=content, headers={
@@ -139,6 +162,16 @@ def upload_executable_linux():
     return result
 
 
+def upload_executable_linux():
+    """Upload GNU/Linux executable to GitHub release page."""
+    return _upload_executable(NAME, f'{NAME}.{EXTENSIONS[sys.platform]}')
+
+
+def upload_executable_macos():
+    """Upload GNU/Linux executable to GitHub release page."""
+    return _upload_executable(NAME, f'{NAME}.{EXTENSIONS[sys.platform]}')
+
+
 CASES = [
     package_clean,
     package_install,
@@ -150,6 +183,8 @@ CASES = [
     create_github_release,
     create_executable_linux,
     upload_executable_linux,
+    create_executable_macos,
+    upload_executable_macos
 ]
 
 
