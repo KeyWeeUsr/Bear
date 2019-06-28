@@ -8,22 +8,35 @@ os:
 python:
     - "3.6"
 
+script: echo Why Travis, why
+
 jobs:
     include:
         - stage: style
           script:
-              - pip install --editable .[ci,dev]
-              - python check.py
+              - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
+                then
+                    curl -LO https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.6.pkg;
+                    sudo installer -package python-3.6.8-macosx10.6.pkg -target /;
+                    curl https://bootstrap.pypa.io/get-pip.py | python3;
+                fi
+              - pip3 install --editable .[ci,dev]
+              - python3 check.py
               - coveralls || true
-
         - stage: deploy
-          script: python release.py
+          script:
+              - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
+                then
+                    curl -LO https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.6.pkg;
+                    sudo installer -package python-3.6.8-macosx10.6.pkg -target /;
+                    curl https://bootstrap.pypa.io/get-pip.py | python3;
+                fi
+              - python3 release.py
 
 stages:
-    # run this stage when not deploying for each branch+tag
     - name: style
       if: NOT (type = api)
-
-    # run only on master branch if triggered manually
     - name: deploy
       if: (branch = master) AND (NOT (type IN (push, pull_request)))
+    - name: test
+      if: branch = "randomtravisbugstagethatdoesnotworkandcrasheseverything:-)"
