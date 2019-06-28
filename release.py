@@ -78,7 +78,7 @@ def package_upload():
     ])
 
 
-def _create_executable_unix():
+def _create_executable():
     return run_proc([
         'python', '-m', 'PyInstaller', '--name', NAME, '--clean',
         '--onefile', '--console', 'bear/__main__.py'
@@ -89,7 +89,7 @@ def create_executable_linux():
     """Create a binary for GNU/Linux platform."""
     result = True
     if sys.platform == 'linux':
-        result = _create_executable_unix()
+        result = _create_executable()
     return result
 
 
@@ -97,7 +97,15 @@ def create_executable_macos():
     """Create a binary for MacOS platform."""
     result = True
     if sys.platform == 'darwin':
-        result = _create_executable_unix()
+        result = _create_executable()
+    return result
+
+
+def create_executable_windows():
+    """Create a binary for MS Windows platform."""
+    result = True
+    if sys.platform == 'win32':
+        result = _create_executable()
     return result
 
 
@@ -179,6 +187,16 @@ def upload_executable_macos():
     return result
 
 
+def upload_executable_windows():
+    """Upload MS Windows executable to GitHub release page."""
+    result = True
+    if sys.platform == 'win32':
+        result = _upload_executable(
+            f'{NAME}.exe', f'{NAME}.{EXTENSIONS[sys.platform]}'
+        )
+    return result
+
+
 CASES = [
     package_clean,
     package_install,
@@ -191,7 +209,9 @@ CASES = [
     create_executable_linux,
     upload_executable_linux,
     create_executable_macos,
-    upload_executable_macos
+    upload_executable_macos,
+    create_executable_windows,
+    upload_executable_windows
 ]
 
 

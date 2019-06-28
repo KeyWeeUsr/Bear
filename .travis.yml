@@ -36,6 +36,17 @@ jobs:
                 fi
               - python release.py
 
+        - stage: deploy
+          os: windows
+          language: bash
+          script:
+              - mv $(which python) $(which python)2;
+              - choco install python3
+              - export PATH=$PATH:/c/Python37:/c/Python38:/c/Python39
+              - cp $(which python) $(dirname $(which python))/python3
+              - export PYTHONIOENCODING=UTF-8
+              - python release.py
+
 stages:
     - name: style
       if: NOT (type = api)
