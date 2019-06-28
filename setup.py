@@ -58,7 +58,7 @@ setup(
             'setuptools', 'wheel',
             'pycodestyle', 'pylint',
             'coverage', 'coveralls',
-            'twine'
+            'twine', 'pyinstaller', 'requests'
         ]
     },
     include_package_data=True,
