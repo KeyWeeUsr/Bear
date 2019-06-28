@@ -103,6 +103,8 @@ def create_github_release():
         )
         # confirmed that release available on GitHub
         result = resp.status_code == 200
+    else:
+        raise Exception((resp, resp.headers, resp.json()))
     return result
 
 
@@ -132,6 +134,8 @@ def upload_executable_linux():
 
     if resp.status_code in (201, 422):
         result = True
+    else:
+        raise Exception((resp, resp.headers, resp.json()))
     return result
 
 
