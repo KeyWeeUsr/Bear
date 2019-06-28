@@ -10,7 +10,6 @@ from shutil import rmtree
 from platform import platform
 from urllib.parse import quote
 
-import requests
 from bear import NAME, VERSION
 
 ROOT = dirname(abspath(__file__))
@@ -80,6 +79,8 @@ def create_executable_linux():
 
 def create_github_release():
     """Draft a new release for a tag (application version) on GitHub."""
+    import requests
+
     result = False
     resp = requests.post(
         f'{GITHUB_API}/repos/{GITHUB_REPO}/releases', data=json.dumps({
@@ -107,8 +108,9 @@ def create_github_release():
 
 def upload_executable_linux():
     """Upload GNU/Linux executable to GitHub release page."""
-    result = False
+    import requests
 
+    result = False
     resp = requests.get(
         f'{GITHUB_API}/repos/{GITHUB_REPO}/releases/tags/{VERSION}',
         headers={
