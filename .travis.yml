@@ -48,4 +48,4 @@ stages:
     - name: style
       if: NOT (type = api)
     - name: deploy
-      if: (branch = master) AND (NOT (type IN (push, pull_request)))
+      if: (tag IS present) AND (tag =~ /^(\d+)\.(\d+)\.(\d+)(\.\d+)?$/)
