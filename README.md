@@ -84,20 +84,29 @@ For the cutting-edge available changes use `master` branch:
 
 There is a list of basic use-cases:
 
-* hashing specific files:
+* remove all duplicates and keep the newest (modified date) files:
 
-      bear --files file1 file2 ...
+      bear --duplicates folder1 folder2 ... --keep-newest
 
-* traversing folders for files
+* remove all duplicates and keep the oldest (modified date) files:
 
-      bear --traverse folder1 folder2 ...
+      bear --duplicates folder1 folder2 ... --keep-oldest
 
-* hashing all files in specific folders
-
-      bear --hash folder1 folder2 ...
-
-* finding all duplicate files within specific folders
+* find all duplicate files within specific folders
 
       bear --duplicates folder1 folder2 ...
 
-There are other, advanced options you can list with `bear --help`.
+* hash all files in specific folders
+
+      bear --hash folder1 folder2 ...
+
+* traverse folders for files
+
+      bear --traverse folder1 folder2 ...
+
+* hash specific files:
+
+      bear --files file1 file2 ...
+
+There are other, advanced options you can list with `bear --help` to speed up
+the lookup, to control the output and more.
