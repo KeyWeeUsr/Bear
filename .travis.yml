@@ -13,6 +13,7 @@ jobs:
 
         - stage: deploy
           os: linux
+          dist: trusty
           language: python
           python: 3.6
           script:
@@ -22,18 +23,14 @@ jobs:
           os: osx
           language: generic
           script:
-              - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
-                then
-                    sudo mv $(which python) $(which python)2;
-                    curl -LO https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.6.pkg;
-                    sudo installer -package python-3.6.8-macosx10.6.pkg -target /;
-                    sudo ln -s $(which python3) /usr/local/bin/python;
-
-                    curl https://bootstrap.pypa.io/get-pip.py | python;
-                    sudo mv $(which pip) $(which pip)2;
-                    sudo ln -s $(which pip3) /usr/local/bin/pip;
-                    export PATH=$PATH:$(dirname $(which pip3));
-                fi
+              - sudo mv $(which python) $(which python)2
+              - curl -LO https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.6.pkg
+              - sudo installer -package python-3.6.8-macosx10.6.pkg -target /
+              - sudo ln -s $(which python3) /usr/local/bin/python
+              - curl https://bootstrap.pypa.io/get-pip.py | python
+              - sudo mv $(which pip) $(which pip)2
+              - sudo ln -s $(which pip3) /usr/local/bin/pip
+              - export PATH=$PATH:$(dirname $(which pip3))
               - python release.py
 
         - stage: deploy
