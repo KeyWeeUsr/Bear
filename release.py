@@ -10,15 +10,14 @@ from os.path import join, dirname, abspath, exists
 from shutil import rmtree
 from platform import platform
 from urllib.parse import quote
+from urllib.request import urlopen
 
-from bear import NAME, VERSION
+from bear import NAME, VERSION, GITHUB_API, REPO_PATH, PYPI_NAME, PYPI_INDEX
 
 ROOT = dirname(abspath(__file__))
 PKG = join(ROOT, NAME)
 RELEASE_DIR = join(ROOT, 'release')
 PYPI_REPO = environ.get('PYPI_REPO', 'https://upload.pypi.org/legacy/')
-GITHUB_API = 'https://api.github.com'
-GITHUB_REPO = 'KeyWeeUsr/Bear'
 EXTENSIONS = {
     # meh... GitHub won't handle same-named binaries
     # therefore MacOS vs GNU/Linux name collision
@@ -72,10 +71,18 @@ def package_dist():
 
 def package_upload():
     """Upload created distributions to PyPI."""
-    return run_proc([
-        'python', '-m', 'twine', 'upload',
-        '--repository-url', PYPI_REPO, 'dist/*'
+    result = True
+    resp = urlopen(f'{PYPI_INDEX}/{PYPI_NAME}/')
+    do_upload = all([
+        f'{PYPI_NAME}-{VERSION}.tar.gz' not in line
+        for line in resp.read().decode('utf-8').split()
     ])
+    if do_upload:
+        result = run_proc([
+            'python', '-m', 'twine', 'upload',
+            '--repository-url', PYPI_REPO, 'dist/*'
+        ])
+    return result
 
 
 def _create_executable():
@@ -115,7 +122,7 @@ def create_github_release():
 
     result = False
     resp = requests.post(
-        f'{GITHUB_API}/repos/{GITHUB_REPO}/releases', data=json.dumps({
+        f'{GITHUB_API}/repos/{REPO_PATH}/releases', data=json.dumps({
             'tag_name': VERSION,
             'name': VERSION,
             'draft': False
@@ -128,7 +135,7 @@ def create_github_release():
         result = True
     elif resp.status_code == 422:
         resp = requests.get(
-            f'{GITHUB_API}/repos/{GITHUB_REPO}/releases/tags/{VERSION}',
+            f'{GITHUB_API}/repos/{REPO_PATH}/releases/tags/{VERSION}',
             headers={
                 'Authorization': f'token {environ.get("GITHUB_TOKEN")}'
             }
@@ -146,7 +153,7 @@ def _upload_executable(binary_name, upload_name):
 
     result = False
     resp = requests.get(
-        f'{GITHUB_API}/repos/{GITHUB_REPO}/releases/tags/{VERSION}',
+        f'{GITHUB_API}/repos/{REPO_PATH}/releases/tags/{VERSION}',
         headers={
             'Authorization': f'token {environ.get("GITHUB_TOKEN")}'
         }
@@ -202,7 +209,7 @@ CASES = [
     package_install,
     package_check,
     package_dist,
-    # package_upload,
+    package_upload,
     package_clean,
     package_install,
     create_github_release,

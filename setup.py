@@ -5,11 +5,12 @@ Basic setup.py
 
 from os.path import abspath, dirname, join, relpath
 from setuptools import setup, find_packages
-from bear import VERSION, NAME
+from bear import (
+    VERSION, NAME, REPO, PYPI_NAME, DESCRIPTION, AUTHOR, AUTHOR_EMAIL
+)
 
 
 ROOT = abspath(dirname(__file__))
-REPO = 'https://github.com/KeyWeeUsr/Bear'
 PKG = join(ROOT, NAME)
 
 
