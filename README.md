@@ -47,9 +47,23 @@ eventually make your machine a clean space.
 
 ## Installation
 
-Currently there is only a Python module available, but platform-specific
-releases such as Windows .exe, MacOS .App and specific GNU/Linux distros
-packages are planned.
+Currently there is a Python module installation available, and some
+platform-specific releases. Check the assets in the GitHub [releases](
+https://github.com/KeyWeeUsr/Bear/releases).
+
+### Binaries
+
+The Windows build is made specifically for Windows 10, so it might not work
+without Universal CRT present on the system. The GNU/Linux build is created
+on Debian trusty and anything older than that most likely won't work. Use
+Python installation instead.
+
+The "extension" `.linux` and `.macos` is just a workaround for GitHub assets
+since it does not allow the same name for multiple assets.
+
+Feel free to rename it to `bear` and put it somewhere on your `echo $PATH`
+(`echo %PATH%` for Windows) or call it in-place. Don't forget to make it
+executable first if on GNU/Linux or MacOS with `chmod +x bear`.
 
 ### Python package
 
@@ -59,12 +73,12 @@ packages are planned.
 
 You can install a stable version with:
 
+    pip install https://github.com/KeyWeeUsr/Bear/zipball/stable
     pip install thebear
-    pip install https://github.com/KeyWeeUsr/bear/zipball/stable
 
 For the cutting-edge available changes use `master` branch:
 
-    pip install https://github.com/KeyWeeUsr/bear/zipball/master
+    pip install https://github.com/KeyWeeUsr/Bear/zipball/master
 
 ## Usage
 
