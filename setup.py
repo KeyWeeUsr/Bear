@@ -19,21 +19,22 @@ with open(join(ROOT, "README.md")) as fd:
 
 
 DATA = [
-    relpath('README.md', ROOT)
+    relpath('README.md', ROOT),
+    relpath('LICENSE.txt', ROOT)
 ]
 
 
-setup(
-    name='thebear',
+KWARGS = dict(
+    name=PYPI_NAME,
     version=VERSION,
-    description='Bear - the decluttering deduplicator',
+    description=DESCRIPTION,
     long_description=README,
     long_description_content_type="text/markdown",
     packages=find_packages(),
-    author='Peter Badida',
-    author_email='keyweeusr@gmail.com',
-    url='https://github.com/KeyWeeUsr/Bear',
-    download_url=f'https://github.com/KeyWeeUsr/Bear/tarball/{VERSION}',
+    author=AUTHOR,
+    author_email=AUTHOR_EMAIL,
+    url=REPO,
+    download_url=f'{REPO}/zipball/{VERSION}',
     entry_points={
         'console_scripts': [f'{NAME} = {NAME}.__main__:run']
     },
@@ -65,3 +66,7 @@ setup(
     include_package_data=True,
     data_files=[(NAME, DATA)]
 )
+
+
+if __name__ == '__main__':
+    setup(**KWARGS)
