@@ -10,3 +10,13 @@ LOGO = r"""
 \ , ___ ,\¯ˇ¯
 |_;_\ /_;_\
 """
+HELP = fr"""
+     /¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯\
+  <  Use {NAME} -h or {NAME} --help |
+    \                            /
+       ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+"""
+LOGO_HELP = '\n'.join([
+    left + right
+    for left, right in zip(LOGO.split('\n'), HELP.split('\n'))
+])

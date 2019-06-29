@@ -4,13 +4,14 @@ Main module for running the package as a Python module from console:
     python -m <package>
 """
 
+import sys
 import logging
 from os import stat, remove
 from argparse import ArgumentParser, Namespace
 
 from ensure import ensure_annotations
 
-from bear import NAME, LOGO
+from bear import NAME, LOGO, LOGO_HELP
 from bear.hashing import hash_file, hash_files
 from bear.output import (
     find_files, filter_files, find_duplicates, output_duplicates
@@ -34,6 +35,17 @@ def set_log_levels(level: int):
     ]
     for logger in loggers:
         logger.setLevel(level)
+
+
+@ensure_annotations
+def print_logo():
+    """
+    Print logo at the beginning of the CLI output.
+    """
+    if len(sys.argv) == 1:
+        print(LOGO_HELP)
+    else:
+        print(LOGO)
 
 
 @ensure_annotations
@@ -69,7 +81,7 @@ def main(args: Namespace):
     the CLI options.
     """
     if not args.quiet:
-        print(LOGO)
+        print_logo()
 
     if args.quiet:
         set_log_levels(logging.NOTSET)
