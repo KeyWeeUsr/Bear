@@ -15,7 +15,7 @@ The decluttering deduplicator.
 [![Latest release deps](https://img.shields.io/librariesio/release/pypi/thebear.svg)
 ](https://libraries.io/pypi/thebear)
 [![GitHub repo deps](https://img.shields.io/librariesio/github/keyweeusr/bear.svg)
-](https://libraries.io/pypi/bear)
+](https://libraries.io/pypi/thebear)
 
 [![Downloads total](https://pepy.tech/badge/thebear)
 ](https://pepy.tech/project/thebear)
