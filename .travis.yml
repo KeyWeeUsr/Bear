@@ -31,10 +31,8 @@ jobs:
               - sudo mv $(which pip) $(which pip)2
               - sudo ln -s $(which pip3) /usr/local/bin/pip
               - export PATH=$PATH:$(dirname $(which pip3))
-              - ls -lah /Applications
-              - ls -lah "/Applications/Python 3.6"
-              - chmod +x "/Applications/Python 3.6/Install Certificates.command"
-              - "/Applications/Python\ 3.6/Install\ Certificates.command"
+              - chmod +x '/Applications/Python 3.6/Install Certificates.command'
+              - sh '/Applications/Python 3.6/Install Certificates.command'
               - python release.py
 
         - stage: deploy
