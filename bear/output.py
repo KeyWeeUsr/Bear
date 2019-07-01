@@ -6,8 +6,10 @@ from os import walk, cpu_count
 from os.path import exists, join, abspath, realpath
 from multiprocessing import Pool
 from datetime import datetime
+from functools import partial
 from ensure import ensure_annotations
 
+from bear.common import Hasher
 from bear.hashing import hash_files
 
 LOG = logging.getLogger(__name__)
@@ -44,7 +46,7 @@ def filter_files(files: dict) -> dict:
 
 
 @ensure_annotations
-def find_duplicates(folders: list, processes: int = 1) -> dict:
+def find_duplicates(folders: list, hasher: Hasher, processes: int = 1) -> dict:
     """
     Find duplicates in multiple folders with multiprocessing.
     """
@@ -60,7 +62,9 @@ def find_duplicates(folders: list, processes: int = 1) -> dict:
     # hash chunks of flat list files
     with Pool(processes=processes) as pool:
         results = pool.map(
-            hash_files, [
+            # because starmap uses positional args which will become unsafer
+            # on each change to the workflow (i.e. more work to find bugs)
+            partial(hash_files, hasher=hasher), [
                 # chunk files into smaller lists
                 files[idx: idx + chunk_size]
                 for idx in range(files_len)
