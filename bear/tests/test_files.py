@@ -6,8 +6,10 @@ from unittest import TestCase, main
 from unittest.mock import patch, MagicMock, call
 from os.path import join, basename
 
+from ensure import ensure_annotations
+
 from bear.hashing import hash_files
-from bear.common import ignore_append
+from bear.common import ignore_append, Hasher
 from bear.output import (
     find_files, filter_files, find_duplicates, output_duplicates
 )
@@ -116,7 +118,7 @@ class HashCase(TestCase):
         patch_ignore = patch('bear.hashing.ignore_append')
         with patch_hash, patch_log as critical, patch_ignore as ignore:
             inp = ['Nonefile', 'someNone']
-            hash_files(inp)
+            hash_files(inp, Hasher.MD5)
             self.assertEqual(ignore.mock_calls, [call(inp[0]), call(inp[1])])
             self.assertEqual(len(critical.mock_calls), len(inp))
 
@@ -132,7 +134,7 @@ class HashCase(TestCase):
         patch_ignore = patch('bear.hashing.ignore_append')
         with patch_hash, patch_log as critical, patch_ignore as ignore:
             inp = ['lalala', 'somefile']
-            hash_files(inp)
+            hash_files(inp, Hasher.MD5)
             self.assertEqual(ignore.mock_calls, [call(inp[0]), call(inp[1])])
             self.assertEqual(len(critical.mock_calls), len(inp))
 
@@ -144,7 +146,7 @@ class HashCase(TestCase):
         patch_ignore = patch('bear.hashing.ignore_append')
         with patch_log as warning, patch_ignore as ignore:
             inp = ['does_not_exist_123', 'does_not_exist_456']
-            hash_files(inp)
+            hash_files(inp, Hasher.MD5)
             self.assertEqual(ignore.mock_calls, [call(inp[0]), call(inp[1])])
             self.assertEqual(len(warning.mock_calls), len(inp))
 
@@ -160,7 +162,7 @@ class HashCase(TestCase):
         patch_ignore = patch('bear.hashing.ignore_append')
         with patch_hash, patch_log as critical, patch_ignore as ignore:
             inp = ['lalala', 'somefile']
-            hash_files(inp)
+            hash_files(inp, Hasher.MD5)
             self.assertEqual(ignore.mock_calls, [call(inp[0]), call(inp[1])])
             self.assertEqual(len(critical.mock_calls), len(inp))
 
@@ -174,12 +176,15 @@ class HashCase(TestCase):
             'original': '789', 'duplicate': '789'
         }
 
-        def _side_effect(fname):
-            return file_hash[fname]
+        # pylint: disable=unused-argument
+        # is actually used for kwargs comparison which is more important
+        @ensure_annotations
+        def _side_effect(path: str, hasher: Hasher):
+            return file_hash[path]
 
         with patch('bear.hashing.hash_file', side_effect=_side_effect):
             inp = ['first', 'second', 'original', 'duplicate']
-            out = hash_files(inp)
+            out = hash_files(files=inp, hasher=Hasher.MD5)
 
         expected = {}
         for key, val in file_hash.items():
@@ -196,10 +201,22 @@ class HashCase(TestCase):
         max_cpu = 666
         patch_cpu = patch('bear.output.cpu_count', return_value=max_cpu)
         patch_pool = patch('bear.output.Pool')
-        with patch_cpu, patch_pool as pool:
-            self.assertEqual(find_duplicates([], processes=1), {})
-            self.assertEqual(find_duplicates([], processes=0), {})
-            self.assertEqual(find_duplicates([], processes=4), {})
+
+        # because partial() != partial() in mock calls!
+        # partially fun, partially headache -_-'
+        fun_part = patch('bear.output.partial')
+
+        # pylint: disable=confusing-with-statement
+        with patch_cpu, patch_pool as pool, fun_part as partial_fun:
+            self.assertEqual(find_duplicates(
+                folders=[], processes=1, hasher=Hasher.MD5
+            ), {})
+            self.assertEqual(find_duplicates(
+                folders=[], processes=0, hasher=Hasher.MD5
+            ), {})
+            self.assertEqual(find_duplicates(
+                folders=[], processes=4, hasher=Hasher.MD5
+            ), {})
 
             self.assertEqual([
                 # remove __iter__() calls because those return a tuple
@@ -208,17 +225,23 @@ class HashCase(TestCase):
             ], [
                 call(processes=1),
                 call().__enter__(),
-                call().__enter__().map(hash_files, []),
+                call().__enter__().map(partial_fun(
+                    hash_files, hasher=Hasher.MD5
+                ), []),
                 call().__exit__(None, None, None),
 
                 call(processes=666),
                 call().__enter__(),
-                call().__enter__().map(hash_files, []),
+                call().__enter__().map(partial_fun(
+                    hash_files, hasher=Hasher.MD5
+                ), []),
                 call().__exit__(None, None, None),
 
                 call(processes=4),
                 call().__enter__(),
-                call().__enter__().map(hash_files, []),
+                call().__enter__().map(partial_fun(
+                    hash_files, hasher=Hasher.MD5
+                ), []),
                 call().__exit__(None, None, None),
             ])
 
@@ -241,11 +264,21 @@ class HashCase(TestCase):
             'bear.output.find_files', side_effect=side_effect
         )
 
+        # because partial() != partial() in mock calls!
+        # partially fun, partially headache -_-'
+        fun_part = patch('bear.output.partial')
+
         # pylint: disable=confusing-with-statement
-        with patch_pool as pool, patch_find_files:
-            self.assertEqual(find_duplicates(['a', 'b', 'c'], processes=1), {})
-            self.assertEqual(find_duplicates(['a', 'b', 'c'], processes=3), {})
-            self.assertEqual(find_duplicates(['a', 'b', 'c'], processes=4), {})
+        with patch_pool as pool, patch_find_files, fun_part as partial_fun:
+            self.assertEqual(find_duplicates(
+                folders=['a', 'b', 'c'], processes=1, hasher=Hasher.MD5
+            ), {})
+            self.assertEqual(find_duplicates(
+                folders=['a', 'b', 'c'], processes=3, hasher=Hasher.MD5
+            ), {})
+            self.assertEqual(find_duplicates(
+                folders=['a', 'b', 'c'], processes=4, hasher=Hasher.MD5
+            ), {})
 
             self.assertEqual([
                 # remove __iter__() calls because those return a tuple
@@ -255,13 +288,17 @@ class HashCase(TestCase):
                 call(processes=1),
                 call().__enter__(),
                 # all files to single process
-                call().__enter__().map(hash_files, [files]),
+                call().__enter__().map(partial_fun(
+                    hash_files, hasher=Hasher.MD5
+                ), [files]),
                 call().__exit__(None, None, None),
 
                 call(processes=3),
                 call().__enter__(),
                 # files chunked len / processors -> 15 // 3 chunks
-                call().__enter__().map(hash_files, [
+                call().__enter__().map(partial_fun(
+                    hash_files, hasher=Hasher.MD5
+                ), [
                     files[0:5], files[5:10], files[10:15]
                 ]),
                 call().__exit__(None, None, None),
@@ -269,7 +306,9 @@ class HashCase(TestCase):
                 call(processes=4),
                 call().__enter__(),
                 # files chunked len / processors -> 15 // 4 chunks
-                call().__enter__().map(hash_files, [
+                call().__enter__().map(partial_fun(
+                    hash_files, hasher=Hasher.MD5
+                ), [
                     files[0:3], files[3:6], files[6:9], files[9:12], files[12:]
                 ]),
                 call().__exit__(None, None, None),
@@ -289,7 +328,9 @@ class HashCase(TestCase):
         patch_pool = patch('bear.output.Pool', return_value=mock_pool)
         with patch_pool:
             # 789 is single-file original, ignored in filter_files()
-            self.assertEqual(find_duplicates([], processes=2), {
+            self.assertEqual(find_duplicates(
+                folders=[], processes=2, hasher=Hasher.MD5
+            ), {
                 '012': ['orig', 'dup'],
                 '123': ['original', 'duplicate'],
                 '456': ['ori', 'dupli']
