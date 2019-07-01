@@ -58,6 +58,13 @@ def find_duplicates(folders: list, hasher: Hasher, processes: int = 1) -> dict:
     files = [file for file_list in found for file in file_list]
     files_len = len(files)
     chunk_size = int(files_len // processes)
+    if chunk_size == 0:
+        # watch out for zero division
+        LOG.critical((
+            'Zero chunk size for files: %d, processes: %d! '
+            'Using 1 as default.'
+        ), files_len, processes)
+        chunk_size = 1
 
     # hash chunks of flat list files
     with Pool(processes=processes) as pool:
