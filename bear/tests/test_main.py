@@ -5,6 +5,7 @@ Test running module in CLI.
 from unittest import TestCase, main
 from unittest.mock import patch, call, MagicMock
 
+from bear.common import Hasher
 from bear.__main__ import run, set_log_levels
 
 
@@ -40,7 +41,7 @@ class MainCase(TestCase):
         sysargv = patch('sys.argv', [__name__, '--files', target])
         with sysargv, hash_file as mocked:
             run()
-            mocked.assert_called_once_with(target)
+            mocked.assert_called_once_with(path=target, hasher=Hasher.MD5)
 
     @staticmethod
     def test_find_files():
@@ -69,7 +70,9 @@ class MainCase(TestCase):
         with sysv, hfile as m_hash, ffile as m_find, fhash as m_filter:
             run()
             m_find.assert_called_once_with(target)
-            m_hash.assert_called_once_with(m_find.return_value)
+            m_hash.assert_called_once_with(
+                files=m_find.return_value, hasher=Hasher.MD5
+            )
             self.assertEqual(m_find.return_value, ffile_ret)
             m_filter.assert_called_once_with(m_hash.return_value)
 
