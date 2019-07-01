@@ -12,6 +12,7 @@ from argparse import ArgumentParser, Namespace
 from ensure import ensure_annotations
 
 from bear import NAME, LOGO, LOGO_HELP
+from bear.common import Hasher
 from bear.hashing import hash_file, hash_files
 from bear.output import (
     find_files, filter_files, find_duplicates, output_duplicates
@@ -49,11 +50,13 @@ def print_logo():
 
 
 @ensure_annotations
-def handle_duplicates(args: Namespace):
+def handle_duplicates(args: Namespace, hasher: Hasher):
     """
     Handle --duplicate related behavior.
     """
-    duplicates = find_duplicates(args.duplicates, args.jobs)
+    duplicates = find_duplicates(
+        folders=args.duplicates, hasher=hasher, processes=args.jobs
+    )
     output_duplicates(duplicates, args.output)
     if args.keep_oldest:
         for dups in duplicates.values():
@@ -72,6 +75,21 @@ def handle_duplicates(args: Namespace):
             )[1:]
             for file in without_newest:
                 remove(file)
+
+
+@ensure_annotations
+def get_hasher(args: Namespace) -> Hasher:
+    """
+    Get non-MD5 hasher if desired.
+    """
+    result = Hasher.MD5  # defalt to MD5
+    if args.blake2:
+        result = Hasher.BLAKE2
+    elif args.sha256:
+        result = Hasher.SHA256
+    elif args.md5:
+        result = Hasher.MD5
+    return result
 
 
 @ensure_annotations
@@ -95,20 +113,22 @@ def main(args: Namespace):
     LOG.info('Setting up default logging level to %s', LOG.level)
     LOG.debug('CLI args: %s', args)
 
+    hasher = get_hasher(args)
+
     if args.files:
         for file in args.files:
-            print(hash_file(file))
+            print(hash_file(path=file, hasher=hasher))
     elif args.traverse:
         for folder in args.traverse:
             print(find_files(folder))
     elif args.hash:
-        print(filter_files(hash_files([
+        print(filter_files(hash_files(files=[
             file
             for file_list in [find_files(folder) for folder in args.hash]
             for file in file_list
-        ])))
+        ], hasher=hasher)))
     elif args.duplicates:
-        handle_duplicates(args)
+        handle_duplicates(args, hasher=hasher)
 
 
 class BearArgumentParser(ArgumentParser):
@@ -166,6 +186,18 @@ def run():
     parser.add_argument(
         '-n', '--keep-newest', action='store_true',
         help='in combination with --duplicates keep only single newest file'
+    )
+    parser.add_argument(
+        '--md5', action='store_true',
+        help='use MD5 function for hashing (default)'
+    )
+    parser.add_argument(
+        '--blake2', action='store_true',
+        help='use BLAKE2 function for hashing'
+    )
+    parser.add_argument(
+        '--sha256', action='store_true',
+        help='use SHA256 function for hashing'
     )
     main(parser.parse_args())
 
