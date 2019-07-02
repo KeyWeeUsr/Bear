@@ -22,7 +22,9 @@ DATA = [
     relpath('README.md', ROOT),
     relpath('LICENSE.txt', ROOT)
 ]
-
+STYLE = ['pycodestyle', 'pylint', 'coverage', 'radon']
+GRAPH = ['wily']
+CI_STYLE = ['coveralls']
 
 KWARGS = dict(
     name=PYPI_NAME,
@@ -54,12 +56,11 @@ KWARGS = dict(
     ],
     install_requires=['ensure'],
     extras_require={
-        'dev': ['pycodestyle', 'pylint', 'coverage'],
-        'ci': ['coveralls'],
-        'release': [
+        'dev': STYLE,
+        'dev_graph': STYLE + GRAPH,
+        'ci': CI_STYLE,
+        'release': STYLE + CI_STYLE + [
             'setuptools', 'wheel',
-            'pycodestyle', 'pylint',
-            'coverage', 'coveralls',
             'twine', 'pyinstaller', 'requests'
         ]
     },
