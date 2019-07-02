@@ -42,16 +42,25 @@ KWARGS = dict(
     },
     classifiers=[
         'Development Status :: 4 - Beta',
+
         'License :: OSI Approved :: '
         'GNU Affero General Public License v3 or later (AGPLv3+)',
+
+        'Operating System :: OS Independent',
         'Environment :: Console',
+
         'Intended Audience :: End Users/Desktop',
+        'Intended Audience :: System Administrators',
+        'Intended Audience :: Developers',
+
         'Natural Language :: English',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: Implementation :: CPython',
+
+        'Topic :: Utilities',
         'Typing :: Typed'
     ],
     install_requires=['ensure'],
@@ -65,7 +74,8 @@ KWARGS = dict(
         ]
     },
     include_package_data=True,
-    data_files=[(NAME, DATA)]
+    data_files=[(NAME, DATA)],
+    python_requires=">=3.6"
 )
 
 
