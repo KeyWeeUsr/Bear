@@ -28,6 +28,15 @@ CASES = [[
     '--top-level-directory', PKG
 ], [
     'python', '-m', 'coverage', 'report', '--show-missing'
+], [
+    'python', '-m', 'radon', 'cc', '--show-complexity',
+    'release.py', 'check.py', 'setup.py', PKG
+], [
+    'python', '-m', 'radon', 'mi', '--show',
+    'release.py', 'check.py', 'setup.py', PKG
+], [
+    'python', '-m', 'radon', 'hal',
+    'release.py', 'check.py', 'setup.py', PKG
 ]]
 
 
