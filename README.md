@@ -45,6 +45,11 @@ gained and looking through the various files from the high-level point of view
 will slightly poke you to set the order to the files, to categorize them and
 eventually make your machine a clean space.
 
+Feel free to open a pull request with your improvements for the project, open
+an issue in case of bug or a feature request and come and talk about the
+project in the
+[Matrix community](https://riot.im/app/#/group/+bear:matrix.org)
+
 ## Installation
 
 Currently there is a Python module installation available, and some
