@@ -150,23 +150,6 @@ def run():
     CLI arguments parser for the main function.
     """
     parser = BearArgumentParser(prog=NAME)
-    parser.add_argument('-v', '--verbose', action='count', default=0)
-    parser.add_argument(
-        '-f', '--files', metavar='FILE', type=str, nargs='+',
-        help='files for hashing'
-    )
-    parser.add_argument(
-        '-t', '--traverse', metavar='FOLDER', type=str, nargs='+',
-        help='list all files in these folders recursively'
-    )
-    parser.add_argument(
-        '-s', '--hash', metavar='FOLDER', type=str, nargs='+',
-        help='hash all files in these folders recursively'
-    )
-    parser.add_argument(
-        '-d', '--duplicates', metavar='FOLDER', type=str, nargs='+',
-        help='find all duplicated files in these folders recursively'
-    )
     parser.add_argument(
         '-j', '--jobs', action='store', type=int, default=1,
         help='set how many processes will be spawn for hashing, 0=max'
@@ -175,27 +158,56 @@ def run():
         '-o', '--output', action='store', type=str, default='',
         help='output file for the list of duplicates'
     )
-    parser.add_argument(
-        '-q', '--quiet', action='store_true',
-        help='suppress all output'
+
+    group_verbosity = parser.add_mutually_exclusive_group()
+    group_verbosity.add_argument(
+        '-v', '--verbose', action='count', default=0, help=(
+            f"stack up to three times to switch between logging verbosity -"
+            f" NONE (default), WARNING, WARNING + INFO, WARNING + INFO + DEBUG"
+        )
     )
-    parser.add_argument(
+    group_verbosity.add_argument(
+        '-q', '--quiet', action='store_true', help='suppress all output'
+    )
+
+    group_action = parser.add_mutually_exclusive_group()
+    group_action.add_argument(
+        '-f', '--files', metavar='FILE', type=str, nargs='+',
+        help='files for hashing'
+    )
+    group_action.add_argument(
+        '-t', '--traverse', metavar='FOLDER', type=str, nargs='+',
+        help='list all files in these folders recursively'
+    )
+    group_action.add_argument(
+        '-s', '--hash', metavar='FOLDER', type=str, nargs='+',
+        help='hash all files in these folders recursively'
+    )
+    group_action.add_argument(
+        '-d', '--duplicates', metavar='FOLDER', type=str, nargs='+',
+        help='find all duplicated files in these folders recursively'
+    )
+
+    group_remove = parser.add_mutually_exclusive_group()
+    group_remove.add_argument(
         '-e', '--keep-oldest', action='store_true',
         help='in combination with --duplicates keep only single oldest file'
     )
-    parser.add_argument(
+    group_remove.add_argument(
         '-n', '--keep-newest', action='store_true',
         help='in combination with --duplicates keep only single newest file'
     )
-    parser.add_argument(
+
+    group_hash = parser.add_mutually_exclusive_group()
+    group_hash.add_argument(
         '--md5', action='store_true',
         help='use MD5 function for hashing (default)'
     )
-    parser.add_argument(
+    group_hash.add_argument(
         '--blake2', action='store_true',
         help='use BLAKE2 function for hashing'
     )
-    parser.add_argument(
+    group_hash.add_argument(
         '--sha256', action='store_true',
         help='use SHA256 function for hashing'
     )
