@@ -61,7 +61,10 @@ def filter_files(files: dict) -> dict:
 
 
 @ensure_annotations
-def find_duplicates(folders: list, hasher: Hasher, processes: int = 1) -> dict:
+def find_duplicates(
+        folders: list, hasher: Hasher, processes: int = 1,
+        exclude: list = [], exclude_regex: list = []
+) -> dict:
     """
     Find duplicates in multiple folders with multiprocessing.
     """
@@ -69,7 +72,13 @@ def find_duplicates(folders: list, hasher: Hasher, processes: int = 1) -> dict:
     processes = processes if processes != 0 else cpu_count()
 
     # traverse the input folders
-    found = [find_files(abspath(realpath(folder))) for folder in folders]
+    found = [
+        find_files(
+            folder=abspath(realpath(folder)),
+            exclude=exclude, exclude_regex=exclude_regex
+        )
+        for folder in folders
+    ]
     files = [file for file_list in found for file in file_list]
     files_len = len(files)
     chunk_size = int(files_len // processes)
