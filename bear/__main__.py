@@ -51,6 +51,7 @@ def print_logo():
 
 @ensure_annotations
 def handle_duplicates(
+        # pylint: disable=dangerous-default-value
         args: Namespace, hasher: Hasher,
         exclude: list = [], exclude_regex: list = []
 ):

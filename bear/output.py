@@ -18,6 +18,7 @@ LOG = logging.getLogger(__name__)
 
 @ensure_annotations
 def find_files(
+        # pylint: disable=dangerous-default-value
         folder: str, exclude: list = [], exclude_regex: list = []
 ) -> list:
     """
@@ -36,7 +37,7 @@ def find_files(
     def _in_excluded_regex(value):
         return any([re.search(exc, value) for exc in exclude_regex])
 
-    for name, folder, files in walk(folder):
+    for name, _, files in walk(folder):
         for fname in files:
             path = join(name, fname)
 
@@ -62,6 +63,7 @@ def filter_files(files: dict) -> dict:
 
 @ensure_annotations
 def find_duplicates(
+        # pylint: disable=dangerous-default-value
         folders: list, hasher: Hasher, processes: int = 1,
         exclude: list = [], exclude_regex: list = []
 ) -> dict:
