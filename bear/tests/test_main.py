@@ -53,7 +53,9 @@ class MainCase(TestCase):
         sysargv = patch('sys.argv', [__name__, '--traverse', target])
         with sysargv, find_file as mocked:
             run()
-            mocked.assert_called_once_with(target)
+            mocked.assert_called_once_with(
+                folder=target, exclude=[], exclude_regex=[]
+            )
 
     def test_hash_folder(self):
         """
@@ -69,7 +71,9 @@ class MainCase(TestCase):
 
         with sysv, hfile as m_hash, ffile as m_find, fhash as m_filter:
             run()
-            m_find.assert_called_once_with(target)
+            m_find.assert_called_once_with(
+                folder=target, exclude=[], exclude_regex=[]
+            )
             m_hash.assert_called_once_with(
                 files=m_find.return_value, hasher=Hasher.MD5
             )

@@ -253,7 +253,10 @@ class HashCase(TestCase):
 
         files = [str(num) for num in range(15)]
 
-        def side_effect(folder):
+        # pylint: disable=dangerous-default-value
+        def side_effect(folder, exclude=[], exclude_regex=[]):
+            assert exclude == []
+            assert exclude_regex == []
             return {
                 'a': files[:5],
                 'b': files[5:10],
