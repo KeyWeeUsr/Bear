@@ -158,6 +158,16 @@ def run():
         '-o', '--output', action='store', type=str, default='',
         help='output file for the list of duplicates'
     )
+    parser.add_argument(
+        '-x', '--exclude', metavar="VALUE",
+        type=str, nargs="+", default=[],
+        help='exclude full paths that contain this value'
+    )
+    parser.add_argument(
+        '-X', '--exclude-regex', metavar="REGEX",
+        type=str, nargs="+", default=[],
+        help='regex pattern for excluding full paths or filenames'
+    )
 
     group_verbosity = parser.add_mutually_exclusive_group()
     group_verbosity.add_argument(
