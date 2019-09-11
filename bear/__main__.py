@@ -55,7 +55,8 @@ def handle_duplicates(args: Namespace, hasher: Hasher):
     Handle --duplicate related behavior.
     """
     duplicates = find_duplicates(
-        folders=args.duplicates, hasher=hasher, processes=args.jobs
+        folders=args.duplicates, hasher=hasher, processes=args.jobs,
+        exclude=exclude, exclude_regex=exclude_regex
     )
     output_duplicates(duplicates, args.output)
     if args.keep_oldest:
@@ -120,11 +121,23 @@ def main(args: Namespace):
             print(hash_file(path=file, hasher=hasher))
     elif args.traverse:
         for folder in args.traverse:
-            print(find_files(folder))
+            print(find_files(
+                folder=folder,
+                exclude=args.exclude,
+                exclude_regex=args.exclude_regex
+            ))
     elif args.hash:
+        found_lists = [
+            find_files(
+                folder=folder,
+                exclude=args.exclude,
+                exclude_regex=args.exclude_regex
+            )
+            for folder in args.hash
+        ]
         print(filter_files(hash_files(files=[
             file
-            for file_list in [find_files(folder) for folder in args.hash]
+            for file_list in found_lists
             for file in file_list
         ], hasher=hasher)))
     elif args.duplicates:
