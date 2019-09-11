@@ -1,6 +1,7 @@
 """
 Module for output-related functions.
 """
+import re
 import logging
 from os import walk, cpu_count
 from os.path import exists, join, abspath, realpath
@@ -16,7 +17,9 @@ LOG = logging.getLogger(__name__)
 
 
 @ensure_annotations
-def find_files(folder: str) -> list:
+def find_files(
+        folder: str, exclude: list = [], exclude_regex: list = []
+) -> list:
     """
     Walk a folder to create a flat list of files.
     """
@@ -27,11 +30,23 @@ def find_files(folder: str) -> list:
         LOG.critical('Folder %s does not exist! Skipping.', folder)
         return result
 
-    result = [
-        join(name, fname)
-        for name, folder, files in walk(folder)
-        for fname in files
-    ]
+    def _in_excluded(value):
+        return any([exc in value for exc in exclude])
+
+    def _in_excluded_regex(value):
+        return any([re.search(exc, value) for exc in exclude_regex])
+
+    for name, folder, files in walk(folder):
+        for fname in files:
+            path = join(name, fname)
+
+            if _in_excluded(path):
+                continue
+            if _in_excluded_regex(path):
+                continue
+
+            result.append(path)
+
     return result
 
 
