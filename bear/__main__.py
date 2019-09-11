@@ -50,7 +50,10 @@ def print_logo():
 
 
 @ensure_annotations
-def handle_duplicates(args: Namespace, hasher: Hasher):
+def handle_duplicates(
+        args: Namespace, hasher: Hasher,
+        exclude: list = [], exclude_regex: list = []
+):
     """
     Handle --duplicate related behavior.
     """
@@ -141,7 +144,11 @@ def main(args: Namespace):
             for file in file_list
         ], hasher=hasher)))
     elif args.duplicates:
-        handle_duplicates(args, hasher=hasher)
+        handle_duplicates(
+            args=args, hasher=hasher,
+            exclude=args.exclude,
+            exclude_regex=args.exclude_regex
+        )
 
 
 class BearArgumentParser(ArgumentParser):
