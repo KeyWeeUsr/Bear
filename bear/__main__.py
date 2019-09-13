@@ -18,6 +18,7 @@ from bear.hashing import hash_file, hash_files
 from bear.output import (
     find_files, filter_files, find_duplicates, output_duplicates
 )
+from bear.context import Context
 
 LOG = logging.getLogger(__name__)
 logging.basicConfig(
@@ -104,6 +105,8 @@ def main(args: Namespace):
     Main function for calling the API from the package depending on
     the CLI options.
     """
+    ctx = Context(args)
+
     if not args.quiet and not args.version:
         print_logo()
 
@@ -118,6 +121,7 @@ def main(args: Namespace):
 
     LOG.info('Setting up default logging level to %s', LOG.level)
     LOG.debug('CLI args: %s', args)
+    LOG.debug('Context: %s', vars(ctx))
 
     hasher = get_hasher(args)
 
