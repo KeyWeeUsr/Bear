@@ -4,8 +4,8 @@ Module for output-related functions.
 
 import re
 import logging
-from os import walk, cpu_count
-from os.path import exists, join, abspath, realpath
+from os import walk, cpu_count, stat
+from os.path import exists, join, abspath, realpath, isfile
 from multiprocessing import Pool
 from datetime import datetime
 from functools import partial
@@ -13,38 +13,46 @@ from ensure import ensure_annotations
 
 from bear.common import Hasher
 from bear.hashing import hash_files
+from bear.context import Context
 
 LOG = logging.getLogger(__name__)
 
 
 @ensure_annotations
-def find_files(
-        # pylint: disable=dangerous-default-value
-        folder: str, exclude: list = [], exclude_regex: list = []
-) -> list:
+def find_files(ctx: Context, folder: str) -> list:
     """
     Walk a folder to create a flat list of files.
     """
 
     result = []
+    exclude = ctx.exclude
+    exclude_regex = ctx.exclude_regex
 
     if not exists(folder):
         LOG.critical('Folder %s does not exist! Skipping.', folder)
         return result
 
-    def _in_excluded(value):
+    def _is_excluded(value):
         return any([exc in value for exc in exclude])
 
-    def _in_excluded_regex(value):
+    def _is_excluded_regex(value):
         return any([re.search(exc, value) for exc in exclude_regex])
+
+    def _is_oversized(value):
+        limit = ctx.max_size
+        if not limit or not isfile(value):
+            return False
+        return stat(value).st_size > limit
 
     for name, _, files in walk(folder):
         for fname in files:
             path = join(name, fname)
 
-            if _in_excluded(path):
+            if _is_excluded(path):
                 continue
-            if _in_excluded_regex(path):
+            if _is_excluded_regex(path):
+                continue
+            if _is_oversized(path):
                 continue
 
             result.append(path)
@@ -63,23 +71,17 @@ def filter_files(files: dict) -> dict:
 
 
 @ensure_annotations
-def find_duplicates(
-        # pylint: disable=dangerous-default-value
-        folders: list, hasher: Hasher, processes: int = 1,
-        exclude: list = [], exclude_regex: list = []
-) -> dict:
+def find_duplicates(ctx: Context, hasher: Hasher) -> dict:
     """
     Find duplicates in multiple folders with multiprocessing.
     """
     # get user specified or max jobs
-    processes = processes if processes != 0 else cpu_count()
+    folders = ctx.duplicates
+    processes = ctx.jobs if ctx.jobs != 0 else cpu_count()
 
     # traverse the input folders
     found = [
-        find_files(
-            folder=abspath(realpath(folder)),
-            exclude=exclude, exclude_regex=exclude_regex
-        )
+        find_files(ctx=ctx, folder=abspath(realpath(folder)))
         for folder in folders
     ]
     files = [file for file_list in found for file in file_list]

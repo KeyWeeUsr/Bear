@@ -32,7 +32,8 @@ class Context:
             keep_newest=False,
             md5=True,
             blake2=False,
-            sha256=False
+            sha256=False,
+            max_size=0
         )
 
         for key, value in vars(args).items():

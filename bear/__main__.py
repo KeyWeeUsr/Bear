@@ -52,20 +52,14 @@ def print_logo():
 
 
 @ensure_annotations
-def handle_duplicates(
-        # pylint: disable=dangerous-default-value
-        args: Namespace, hasher: Hasher,
-        exclude: list = [], exclude_regex: list = []
-):
+def handle_duplicates(ctx: Context, hasher: Hasher):
     """
     Handle --duplicate related behavior.
     """
-    duplicates = find_duplicates(
-        folders=args.duplicates, hasher=hasher, processes=args.jobs,
-        exclude=exclude, exclude_regex=exclude_regex
-    )
-    output_duplicates(duplicates, args.output)
-    if args.keep_oldest:
+
+    duplicates = find_duplicates(ctx=ctx, hasher=hasher)
+    output_duplicates(hashes=duplicates, out=ctx.output)
+    if ctx.keep_oldest:
         for dups in duplicates.values():
             # oldest == smallest timestamp
             without_oldest = sorted(
@@ -74,7 +68,7 @@ def handle_duplicates(
             for file in without_oldest:
                 remove(file)
 
-    elif args.keep_newest:
+    elif ctx.keep_newest:
         for dups in duplicates.values():
             # reverse for oldest
             without_newest = sorted(
@@ -150,11 +144,7 @@ def main(args: Namespace):
             for file in file_list
         ], hasher=hasher)))
     elif ctx.duplicates:
-        handle_duplicates(
-            args=ctx, hasher=hasher,
-            exclude=ctx.exclude,
-            exclude_regex=ctx.exclude_regex
-        )
+        handle_duplicates(ctx=ctx, hasher=hasher)
     elif ctx.version:
         print(VERSION)
     elif ctx.community:
@@ -197,6 +187,10 @@ def run():
         '-X', '--exclude-regex', metavar="REGEX",
         type=str, nargs="+", default=[],
         help='regex pattern for excluding full paths or filenames'
+    )
+    parser.add_argument(
+        "--max-size", metavar="BYTES", action="store", type=int, default=0,
+        help="exclude files if their size is above the limit, 0=unlimited"
     )
 
     group_verbosity = parser.add_mutually_exclusive_group()
