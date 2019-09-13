@@ -13,6 +13,7 @@ REPO = f'{GITHUB_WEB}/KeyWeeUsr/Bear'
 DESCRIPTION = 'Bear - the decluttering deduplicator'
 AUTHOR = 'Peter Badida'
 AUTHOR_EMAIL = 'keyweeusr@gmail.com'
+COMMUNITY_URL = 'https://riot.im/app/#/group/+bear:matrix.org'
 LOGO = r"""
  ,--.-'--.,.
 /¯  Bear   °¯;

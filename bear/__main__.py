@@ -8,10 +8,11 @@ import sys
 import logging
 from os import stat, remove
 from argparse import ArgumentParser, Namespace
+from webbrowser import open as open_browser
 
 from ensure import ensure_annotations
 
-from bear import NAME, LOGO, LOGO_HELP, VERSION
+from bear import NAME, LOGO, LOGO_HELP, VERSION, COMMUNITY_URL
 from bear.common import Hasher
 from bear.hashing import hash_file, hash_files
 from bear.output import (
@@ -153,6 +154,8 @@ def main(args: Namespace):
         )
     elif args.version:
         print(VERSION)
+    elif args.community:
+        open_browser(COMMUNITY_URL)
 
 
 class BearArgumentParser(ArgumentParser):
@@ -225,6 +228,11 @@ def run():
         '-V', '--version', action='store_true', help=(
             'print current version in a standard format specified in PEP 440'
             ' (https://www.python.org/dev/peps/pep-0440/)'
+        )
+    )
+    group_action.add_argument(
+        '--community', '--support', '--chat', action='store_true', help=(
+            f'Open {NAME} Matrix community in your browser'
         )
     )
 
