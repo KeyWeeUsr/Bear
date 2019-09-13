@@ -1,6 +1,7 @@
 """
 Module for output-related functions.
 """
+
 import re
 import logging
 from os import walk, cpu_count

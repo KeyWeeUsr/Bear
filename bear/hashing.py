@@ -1,6 +1,7 @@
 """
 Module for hashing-related functions.
 """
+
 import logging
 import traceback
 from ensure import ensure_annotations
