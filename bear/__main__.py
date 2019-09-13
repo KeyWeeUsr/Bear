@@ -41,10 +41,13 @@ def set_log_levels(level: int):
 
 
 @ensure_annotations
-def print_logo():
+def print_logo(ctx: Context):
     """
     Print logo at the beginning of the CLI output.
     """
+    if ctx.quiet or ctx.version:
+        return
+
     if len(sys.argv) == 1:
         print(LOGO_HELP)
     else:
@@ -100,8 +103,7 @@ def main(args: Namespace):
     """
     ctx = Context(args)
 
-    if not ctx.quiet and not ctx.version:
-        print_logo()
+    print_logo(ctx)
 
     if ctx.quiet:
         set_log_levels(logging.NOTSET)
@@ -124,18 +126,10 @@ def main(args: Namespace):
             print(hash_file(path=file, hasher=hasher))
     elif ctx.traverse:
         for folder in ctx.traverse:
-            print(find_files(
-                folder=folder,
-                exclude=ctx.exclude,
-                exclude_regex=ctx.exclude_regex
-            ))
+            print(find_files(ctx=ctx, folder=folder))
     elif ctx.hash:
         found_lists = [
-            find_files(
-                folder=folder,
-                exclude=ctx.exclude,
-                exclude_regex=ctx.exclude_regex
-            )
+            find_files(ctx=ctx, folder=folder)
             for folder in ctx.hash
         ]
         print(filter_files(hash_files(files=[
