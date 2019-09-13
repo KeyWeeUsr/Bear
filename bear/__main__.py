@@ -106,16 +106,16 @@ def main(args: Namespace):
     """
     ctx = Context(args)
 
-    if not args.quiet and not args.version:
+    if not ctx.quiet and not ctx.version:
         print_logo()
 
-    if args.quiet:
+    if ctx.quiet:
         set_log_levels(logging.NOTSET)
-    elif 0 < args.verbose <= 1:
+    elif 0 < ctx.verbose <= 1:
         set_log_levels(logging.WARNING)
-    elif 1 < args.verbose <= 2:
+    elif 1 < ctx.verbose <= 2:
         set_log_levels(logging.INFO)
-    elif args.verbose > 2:
+    elif ctx.verbose > 2:
         set_log_levels(logging.DEBUG)
 
     LOG.info('Setting up default logging level to %s', LOG.level)
@@ -125,39 +125,39 @@ def main(args: Namespace):
     hasher = get_hasher(ctx)
 
     # actions
-    if args.files:
-        for file in args.files:
+    if ctx.files:
+        for file in ctx.files:
             print(hash_file(path=file, hasher=hasher))
-    elif args.traverse:
-        for folder in args.traverse:
+    elif ctx.traverse:
+        for folder in ctx.traverse:
             print(find_files(
                 folder=folder,
-                exclude=args.exclude,
-                exclude_regex=args.exclude_regex
+                exclude=ctx.exclude,
+                exclude_regex=ctx.exclude_regex
             ))
-    elif args.hash:
+    elif ctx.hash:
         found_lists = [
             find_files(
                 folder=folder,
-                exclude=args.exclude,
-                exclude_regex=args.exclude_regex
+                exclude=ctx.exclude,
+                exclude_regex=ctx.exclude_regex
             )
-            for folder in args.hash
+            for folder in ctx.hash
         ]
         print(filter_files(hash_files(files=[
             file
             for file_list in found_lists
             for file in file_list
         ], hasher=hasher)))
-    elif args.duplicates:
+    elif ctx.duplicates:
         handle_duplicates(
-            args=args, hasher=hasher,
-            exclude=args.exclude,
-            exclude_regex=args.exclude_regex
+            args=ctx, hasher=hasher,
+            exclude=ctx.exclude,
+            exclude_regex=ctx.exclude_regex
         )
-    elif args.version:
+    elif ctx.version:
         print(VERSION)
-    elif args.community:
+    elif ctx.community:
         open_browser(COMMUNITY_URL)
 
 

@@ -35,5 +35,8 @@ class Context:
             sha256=False
         )
 
+        for key, value in vars(args).items():
+            defaults[key] = value
+
         for conf, value in defaults.items():
             setattr(self, conf, value)
