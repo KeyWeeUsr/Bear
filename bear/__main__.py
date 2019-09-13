@@ -85,16 +85,15 @@ def handle_duplicates(
 
 
 @ensure_annotations
-def get_hasher(args: Namespace) -> Hasher:
+def get_hasher(ctx: Context) -> Hasher:
     """
     Get non-MD5 hasher if desired.
     """
-    result = Hasher.MD5  # defalt to MD5
-    if args.blake2:
+    if ctx.blake2:
         result = Hasher.BLAKE2
-    elif args.sha256:
+    elif ctx.sha256:
         result = Hasher.SHA256
-    elif args.md5:
+    elif ctx.md5:
         result = Hasher.MD5
     return result
 
@@ -123,7 +122,7 @@ def main(args: Namespace):
     LOG.debug('CLI args: %s', args)
     LOG.debug('Context: %s', vars(ctx))
 
-    hasher = get_hasher(args)
+    hasher = get_hasher(ctx)
 
     # actions
     if args.files:
@@ -252,7 +251,7 @@ def run():
 
     group_hash = parser.add_mutually_exclusive_group()
     group_hash.add_argument(
-        '--md5', action='store_true',
+        '--md5', action='store_true', default=True,
         help='use MD5 function for hashing (default)'
     )
     group_hash.add_argument(
