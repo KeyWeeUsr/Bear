@@ -12,6 +12,26 @@ class Context:
     functions or other classes to keep the code clean of the global variables
     and unnecessary 2+ cluttering function parameters.
     """
+    # pylint: disable=too-few-public-methods
+
+    jobs: int
+    output: str
+    exclude: list
+    exclude_regex: list
+    verbose: int
+    quiet: bool
+    files: list
+    traverse: list
+    hash: list
+    duplicates: list
+    version: bool
+    community: bool
+    keep_oldest: bool
+    keep_newest: bool
+    md5: bool
+    blake2: bool
+    sha256: bool
+    max_size: int
 
     @ensure_annotations
     def __init__(self, args: Namespace):
