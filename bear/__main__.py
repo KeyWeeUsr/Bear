@@ -11,7 +11,7 @@ from argparse import ArgumentParser, Namespace
 
 from ensure import ensure_annotations
 
-from bear import NAME, LOGO, LOGO_HELP
+from bear import NAME, LOGO, LOGO_HELP, VERSION
 from bear.common import Hasher
 from bear.hashing import hash_file, hash_files
 from bear.output import (
@@ -103,7 +103,7 @@ def main(args: Namespace):
     Main function for calling the API from the package depending on
     the CLI options.
     """
-    if not args.quiet:
+    if not args.quiet and not args.version:
         print_logo()
 
     if args.quiet:
@@ -120,6 +120,7 @@ def main(args: Namespace):
 
     hasher = get_hasher(args)
 
+    # actions
     if args.files:
         for file in args.files:
             print(hash_file(path=file, hasher=hasher))
@@ -150,6 +151,8 @@ def main(args: Namespace):
             exclude=args.exclude,
             exclude_regex=args.exclude_regex
         )
+    elif args.version:
+        print(VERSION)
 
 
 class BearArgumentParser(ArgumentParser):
@@ -217,6 +220,12 @@ def run():
     group_action.add_argument(
         '-d', '--duplicates', metavar='FOLDER', type=str, nargs='+',
         help='find all duplicated files in these folders recursively'
+    )
+    group_action.add_argument(
+        '-V', '--version', action='store_true', help=(
+            'print current version in a standard format specified in PEP 440'
+            ' (https://www.python.org/dev/peps/pep-0440/)'
+        )
     )
 
     group_remove = parser.add_mutually_exclusive_group()
