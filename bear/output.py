@@ -132,6 +132,7 @@ def load_duplicates_from_hashfiles(ctx: Context) -> dict:
         with open(hashfile) as file:
             lines = file.readlines()
         for line in lines:
+            # pylint: disable=redefined-builtin
             hash, path = line.split("\t")
             path = path.strip()
             if hash not in files:

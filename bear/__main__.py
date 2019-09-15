@@ -129,6 +129,7 @@ def main(args: Namespace):
     Main function for calling the API from the package depending on
     the CLI options.
     """
+    # pylint: disable=too-many-branches
     ctx = Context(args)
 
     print_logo(ctx)
