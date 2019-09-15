@@ -4,8 +4,10 @@ Test running module in CLI.
 
 from unittest import TestCase, main
 from unittest.mock import patch, call, MagicMock
+from argparse import Namespace
 
 from bear.common import Hasher
+from bear.context import Context
 from bear.__main__ import run, set_log_levels
 
 
@@ -49,13 +51,13 @@ class MainCase(TestCase):
         Test calling function for collecting all files in a folder.
         """
         target = 'testpath'
+        context = Context(Namespace(traverse=[target]))
+        ctx = patch("bear.__main__.Context", return_value=context)
         find_file = patch('bear.__main__.find_files')
         sysargv = patch('sys.argv', [__name__, '--traverse', target])
-        with sysargv, find_file as mocked:
+        with sysargv, ctx, find_file as mocked:
             run()
-            mocked.assert_called_once_with(
-                folder=target, exclude=[], exclude_regex=[]
-            )
+            mocked.assert_called_once_with(ctx=context, folder=target)
 
     def test_hash_folder(self):
         """
@@ -63,17 +65,17 @@ class MainCase(TestCase):
         function on them.
         """
         target = 'testpath'
+        context = Context(Namespace(hash=[target]))
+        ctx = patch("bear.__main__.Context", return_value=context)
         sysv = patch('sys.argv', [__name__, '--hash', target])
         hfile = patch('bear.__main__.hash_files')
         ffile_ret = [None]
         ffile = patch('bear.__main__.find_files', return_value=ffile_ret)
         fhash = patch('bear.__main__.filter_files')
 
-        with sysv, hfile as m_hash, ffile as m_find, fhash as m_filter:
+        with sysv, ctx, hfile as m_hash, ffile as m_find, fhash as m_filter:
             run()
-            m_find.assert_called_once_with(
-                folder=target, exclude=[], exclude_regex=[]
-            )
+            m_find.assert_called_once_with(ctx=context, folder=target)
             m_hash.assert_called_once_with(
                 files=m_find.return_value, hasher=Hasher.MD5
             )
