@@ -16,7 +16,8 @@ from bear import NAME, LOGO, LOGO_HELP, VERSION, COMMUNITY_URL
 from bear.common import Hasher
 from bear.hashing import hash_file, hash_files
 from bear.output import (
-    find_files, filter_files, find_duplicates, output_duplicates
+    find_files, filter_files, find_duplicates, output_duplicates,
+    load_duplicates_from_hashfiles
 )
 from bear.context import Context
 
@@ -61,6 +62,33 @@ def handle_duplicates(ctx: Context, hasher: Hasher):
     """
 
     duplicates = find_duplicates(ctx=ctx, hasher=hasher)
+    output_duplicates(hashes=duplicates, out=ctx.output)
+    if ctx.keep_oldest:
+        for dups in duplicates.values():
+            # oldest == smallest timestamp
+            without_oldest = sorted(
+                dups, key=lambda item: stat(item).st_mtime
+            )[1:]
+            for file in without_oldest:
+                remove(file)
+
+    elif ctx.keep_newest:
+        for dups in duplicates.values():
+            # reverse for oldest
+            without_newest = sorted(
+                dups, key=lambda item: stat(item).st_mtime, reverse=True
+            )[1:]
+            for file in without_newest:
+                remove(file)
+
+
+@ensure_annotations
+def load_hashes(ctx: Context):
+    """
+    Load tab-separated hash+path lines from files
+    """
+
+    duplicates = load_duplicates_from_hashfiles(ctx=ctx)
     output_duplicates(hashes=duplicates, out=ctx.output)
     if ctx.keep_oldest:
         for dups in duplicates.values():
@@ -143,6 +171,8 @@ def main(args: Namespace):
         print(VERSION)
     elif ctx.community:
         open_browser(COMMUNITY_URL)
+    elif ctx.load_hashes:
+        load_hashes(ctx=ctx)
 
 
 class BearArgumentParser(ArgumentParser):
@@ -224,6 +254,11 @@ def run():
     group_action.add_argument(
         '--community', '--support', '--chat', action='store_true', help=(
             f'Open {NAME} Matrix community in your browser'
+        )
+    )
+    group_action.add_argument(
+        '--load-hashes', metavar='FILE', type=str, nargs='+', help=(
+            'find all duplicated files from files containing hash+path lines'
         )
     )
 

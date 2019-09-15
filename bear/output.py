@@ -122,6 +122,28 @@ def find_duplicates(ctx: Context, hasher: Hasher) -> dict:
 
 
 @ensure_annotations
+def load_duplicates_from_hashfiles(ctx: Context) -> dict:
+    """
+    Find duplicates from previous temporary output (mainly if MP deadlocked).
+    """
+    # join values from hashfiles
+    files = {}
+    for hashfile in ctx.load_hashes:
+        with open(hashfile) as file:
+            lines = file.readlines()
+        for line in lines:
+            hash, path = line.split("\t")
+            path = path.strip()
+            if hash not in files:
+                files[hash] = [path]
+            else:
+                files[hash].append(path)
+
+    # filter out non-duplicates
+    return filter_files(files)
+
+
+@ensure_annotations
 def output_duplicates(hashes: dict, out: str = ''):
     """
     Output a simple structure for the duplicates:
