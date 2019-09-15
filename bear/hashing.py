@@ -4,6 +4,7 @@ Module for hashing-related functions.
 
 import logging
 import traceback
+from os import getpid
 from ensure import ensure_annotations
 
 from bear.common import ignore_append, Hasher
@@ -39,6 +40,8 @@ def hash_file(path: str, hasher: Hasher) -> str:
         with open(path, 'rb') as file:
             contents = file.read()
         result = hash_text(inp=contents, hasher=hasher)
+        with open(f"{getpid()}_hashes.txt", "a") as file:
+            file.write(f"{result}\t{path}\n")
     except PermissionError:
         LOG.critical(
             'Could not open %s due to permission error! %s',
