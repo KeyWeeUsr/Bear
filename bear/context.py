@@ -33,8 +33,9 @@ class Context:
     blake2: bool
     sha256: bool
     max_size: int
-    load_hashes: list
+    load_hashes: bool
     hasher: Hasher
+    hashfiles: list
 
     @ensure_annotations
     def __init__(self, args: Namespace):
@@ -57,8 +58,9 @@ class Context:
             blake2=False,
             sha256=False,
             max_size=0,
-            load_hashes=[],
-            hasher=Hasher.MD5
+            load_hashes=False,
+            hasher=Hasher.MD5,
+            hashfiles=[]
         )
 
         for key, value in vars(args).items():

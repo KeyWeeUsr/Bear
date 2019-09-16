@@ -140,7 +140,7 @@ def load_duplicates_from_hashfiles(ctx: Context) -> dict:
     """
     # join values from hashfiles
     files = {}
-    for hashfile in ctx.load_hashes:
+    for hashfile in ctx.hashfiles:
         with open(hashfile) as file:
             lines = file.readlines()
         for line in lines:

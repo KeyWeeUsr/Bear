@@ -159,6 +159,8 @@ def main(args: Namespace):
     elif ctx.community:
         open_browser(COMMUNITY_URL)
     elif ctx.load_hashes:
+        if not ctx.hashfiles:
+            ctx.hashfiles = ctx.load_hashes
         load_hashes(ctx=ctx)
 
 
@@ -203,6 +205,10 @@ def run():
         "--max-size", metavar="BYTES", action="store", type=int, default=0,
         help="exclude files if their size is above the limit, 0=unlimited"
     )
+    parser.add_argument(
+        '--hashfiles', metavar='FILE', type=str, nargs='+', default=[],
+        help='files containing hash+path lines'
+    )
 
     group_verbosity = parser.add_mutually_exclusive_group()
     group_verbosity.add_argument(
@@ -245,8 +251,8 @@ def run():
         )
     )
     group_action.add_argument(
-        '--load-hashes', metavar='FILE', type=str, nargs='+', default=[],
-        help='find all duplicated files from files containing hash+path lines'
+        '--load-hashes', action="store_true",
+        help='only load data from hashfiles (containing hash+path lines)'
     )
 
     group_remove = parser.add_mutually_exclusive_group()
