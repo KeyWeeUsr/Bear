@@ -109,8 +109,10 @@ def find_duplicates(ctx: Context, hasher: Hasher) -> dict:
             ]
         )
 
+    # load saved duplicates if any, otherwise {}
+    files = load_duplicates_from_hashfiles(ctx=ctx)
+
     # join values from all jobs
-    files = {}
     for result in results:
         for key, val in result.items():
             if key not in files:
@@ -126,6 +128,7 @@ def find_duplicates(ctx: Context, hasher: Hasher) -> dict:
         if "_hashes.txt" not in file:
             continue
         remove(file)
+
     # filter out non-duplicates
     return filter_files(files)
 
