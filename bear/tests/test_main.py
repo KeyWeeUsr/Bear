@@ -51,7 +51,9 @@ class MainCase(TestCase):
         Test calling function for collecting all files in a folder.
         """
         target = 'testpath'
-        context = Context(Namespace(traverse=[target]))
+        context = Context(Namespace(
+            traverse=[target], files=[], hash=[], duplicates=[]
+        ))
         ctx = patch("bear.__main__.Context", return_value=context)
         find_file = patch('bear.__main__.find_files')
         sysargv = patch('sys.argv', [__name__, '--traverse', target])
@@ -65,7 +67,9 @@ class MainCase(TestCase):
         function on them.
         """
         target = 'testpath'
-        context = Context(Namespace(hash=[target]))
+        context = Context(Namespace(
+            hash=[target], traverse=[], files=[], duplicates=[]
+        ))
         ctx = patch("bear.__main__.Context", return_value=context)
         sysv = patch('sys.argv', [__name__, '--hash', target])
         hfile = patch('bear.__main__.hash_files')

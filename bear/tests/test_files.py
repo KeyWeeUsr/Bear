@@ -28,7 +28,9 @@ class HashCase(TestCase):
         Test calling bear.find_files on non-existing folder.
         """
         with patch('bear.output.LOG.critical') as critical:
-            find_files(ctx=Context(Namespace()), folder='_' * 30)
+            find_files(ctx=Context(Namespace(
+                duplicates=[], files=[], traverse=[], hash=[]
+            )), folder='_' * 30)
             critical.assert_called_once()
 
     def test_find_files(self):
@@ -68,7 +70,9 @@ class HashCase(TestCase):
         patch_walk = patch('bear.output.walk', return_value=mocked_walk)
         with patch_walk, patch('bear.output.exists', return_value=True):
             self.assertEqual(find_files(
-                ctx=Context(Namespace()), folder='_' * 30
+                ctx=Context(Namespace(
+                    duplicates=[], files=[], traverse=[], hash=[]
+                )), folder='_' * 30
             ), expected)
 
     def test_filter_files(self):
@@ -213,15 +217,24 @@ class HashCase(TestCase):
         # pylint: disable=confusing-with-statement
         with patch_cpu, patch_pool as pool, fun_part as partial_fun:
             self.assertEqual(find_duplicates(
-                ctx=Context(Namespace(duplicates=[], jobs=1)),
+                ctx=Context(Namespace(
+                    duplicates=[], jobs=1,
+                    files=[], traverse=[], hash=[]
+                )),
                 hasher=Hasher.MD5
             ), {})
             self.assertEqual(find_duplicates(
-                ctx=Context(Namespace(duplicates=[], jobs=0)),
+                ctx=Context(Namespace(
+                    duplicates=[], jobs=0,
+                    files=[], traverse=[], hash=[]
+                )),
                 hasher=Hasher.MD5
             ), {})
             self.assertEqual(find_duplicates(
-                ctx=Context(Namespace(duplicates=[], jobs=4)),
+                ctx=Context(Namespace(
+                    duplicates=[], jobs=4,
+                    files=[], traverse=[], hash=[]
+                )),
                 hasher=Hasher.MD5
             ), {})
 
@@ -280,15 +293,24 @@ class HashCase(TestCase):
         # pylint: disable=confusing-with-statement
         with patch_pool as pool, patch_find_files, fun_part as partial_fun:
             self.assertEqual(find_duplicates(
-                ctx=Context(Namespace(duplicates=['a', 'b', 'c'], jobs=1)),
+                ctx=Context(Namespace(
+                    duplicates=['a', 'b', 'c'], jobs=1,
+                    files=[], traverse=[], hash=[]
+                )),
                 hasher=Hasher.MD5
             ), {})
             self.assertEqual(find_duplicates(
-                ctx=Context(Namespace(duplicates=['a', 'b', 'c'], jobs=3)),
+                ctx=Context(Namespace(
+                    duplicates=['a', 'b', 'c'], jobs=3,
+                    files=[], traverse=[], hash=[]
+                )),
                 hasher=Hasher.MD5
             ), {})
             self.assertEqual(find_duplicates(
-                ctx=Context(Namespace(duplicates=['a', 'b', 'c'], jobs=4)),
+                ctx=Context(Namespace(
+                    duplicates=['a', 'b', 'c'], jobs=4,
+                    files=[], traverse=[], hash=[]
+                )),
                 hasher=Hasher.MD5
             ), {})
 
@@ -338,7 +360,9 @@ class HashCase(TestCase):
             ]
         })
         patch_pool = patch('bear.output.Pool', return_value=mock_pool)
-        ctx = Context(Namespace(duplicates=[], jobs=2))
+        ctx = Context(Namespace(
+            duplicates=[], jobs=2, files=[], traverse=[], hash=[]
+        ))
         with patch_pool:
             # 789 is single-file original, ignored in filter_files()
             self.assertEqual(find_duplicates(
