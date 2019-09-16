@@ -4,7 +4,7 @@ Module for output-related functions.
 
 import re
 import logging
-from os import walk, cpu_count, stat
+from os import walk, cpu_count, stat, getpid, remove, listdir
 from os.path import exists, join, abspath, realpath, isfile
 from multiprocessing import Pool
 from datetime import datetime
@@ -96,11 +96,12 @@ def find_duplicates(ctx: Context, hasher: Hasher) -> dict:
         chunk_size = 1
 
     # hash chunks of flat list files
+    master_pid = getpid()
     with Pool(processes=processes) as pool:
         results = pool.map(
             # because starmap uses positional args which will become unsafer
             # on each change to the workflow (i.e. more work to find bugs)
-            partial(hash_files, hasher=hasher), [
+            partial(hash_files, hasher=hasher, master_pid=master_pid), [
                 # chunk files into smaller lists
                 files[idx: idx + chunk_size]
                 for idx in range(files_len)
@@ -117,6 +118,14 @@ def find_duplicates(ctx: Context, hasher: Hasher) -> dict:
             else:
                 files[key].extend(val)
 
+    # Pool terminated, results properly joined (no out of memory exc)
+    # remove partial results as these are not needed anymore
+    for file in listdir("."):
+        if f"bear_m{master_pid}_" not in file:
+            continue
+        if "_hashes.txt" not in file:
+            continue
+        remove(file)
     # filter out non-duplicates
     return filter_files(files)
 

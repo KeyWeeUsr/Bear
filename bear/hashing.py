@@ -40,8 +40,6 @@ def hash_file(path: str, hasher: Hasher) -> str:
         with open(path, 'rb') as file:
             contents = file.read()
         result = hash_text(inp=contents, hasher=hasher)
-        with open(f"{getpid()}_hashes.txt", "a") as file:
-            file.write(f"{result}\t{path}\n")
     except PermissionError:
         LOG.critical(
             'Could not open %s due to permission error! %s',
@@ -57,17 +55,27 @@ def hash_file(path: str, hasher: Hasher) -> str:
     return result
 
 
-def hash_files(files: list, hasher: Hasher) -> dict:
+def hash_files(files: list, hasher: Hasher, master_pid: int = None) -> dict:
     """
     Hash each of the file in the list.
 
     In case of a MemoryError (limitation of e.g. 32-bit Python)
     write out the file names in separate .txt files per PID
     of the process used for hashing.
+
+    Note: master_pid should have a default in case of running out of MP,
+          and use master's PID so that master can recognize slave processes'
+          files after the slaves in the Pool are terminated.
     """
 
     hashfiles = {}
     files_len = len(files)
+    partial_file = f"bear_m{master_pid}_s{getpid()}_hashes.txt"
+
+    # safe-check in case the name changes in the future to prevent
+    # creating files that won't be deleted by master process
+    assert f"bear_m{master_pid}_" in partial_file
+    assert f"_hashes.txt" in partial_file
 
     for idx, fname in enumerate(files):
         LOG.debug('Hashing %d / %d', idx + 1, files_len)
@@ -76,6 +84,8 @@ def hash_files(files: list, hasher: Hasher) -> dict:
             fhash = hash_file(path=fname, hasher=hasher)
             if not fhash:
                 continue
+            with open(partial_file, "a") as file:
+                file.write(f"{fhash}\t{fname}\n")
             if fhash not in hashfiles:
                 hashfiles[fhash] = [fname]
             else:
