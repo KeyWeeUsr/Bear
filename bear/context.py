@@ -59,7 +59,13 @@ class Context:
         )
 
         for key, value in vars(args).items():
+            assert isinstance(value, self.__annotations__[key]), (
+                f"{key}: {type(value)} should be {self.__annotations__[key]}"
+            )
             defaults[key] = value
 
         for conf, value in defaults.items():
+            assert isinstance(value, self.__annotations__[conf]), (
+                f"{conf}: {type(value)} should be {self.__annotations__[conf]}"
+            )
             setattr(self, conf, value)
