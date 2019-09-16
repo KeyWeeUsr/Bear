@@ -110,20 +110,6 @@ def load_hashes(ctx: Context):
 
 
 @ensure_annotations
-def get_hasher(ctx: Context) -> Hasher:
-    """
-    Get non-MD5 hasher if desired.
-    """
-    if ctx.blake2:
-        result = Hasher.BLAKE2
-    elif ctx.sha256:
-        result = Hasher.SHA256
-    elif ctx.md5:
-        result = Hasher.MD5
-    return result
-
-
-@ensure_annotations
 def main(args: Namespace):
     """
     Main function for calling the API from the package depending on
@@ -147,7 +133,7 @@ def main(args: Namespace):
     LOG.debug('CLI args: %s', args)
     LOG.debug('Context: %s', vars(ctx))
 
-    hasher = get_hasher(ctx)
+    hasher = ctx.hasher
 
     # actions
     if ctx.files:

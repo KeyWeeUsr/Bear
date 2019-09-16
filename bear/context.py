@@ -4,6 +4,7 @@ Module for context and configuration grouping.
 
 from argparse import Namespace
 from ensure import ensure_annotations
+from bear.common import Hasher
 
 
 class Context:
@@ -33,6 +34,7 @@ class Context:
     sha256: bool
     max_size: int
     load_hashes: list
+    hasher: Hasher
 
     @ensure_annotations
     def __init__(self, args: Namespace):
@@ -55,7 +57,8 @@ class Context:
             blake2=False,
             sha256=False,
             max_size=0,
-            load_hashes=[]
+            load_hashes=[],
+            hasher=Hasher.MD5
         )
 
         for key, value in vars(args).items():
@@ -69,3 +72,19 @@ class Context:
                 f"{conf}: {type(value)} should be {self.__annotations__[conf]}"
             )
             setattr(self, conf, value)
+
+        # custom field setters
+        self.hasher = self.get_hasher()
+
+    @ensure_annotations
+    def get_hasher(self) -> Hasher:
+        """
+        Get non-MD5 hasher if desired.
+        """
+        if self.blake2:
+            result = Hasher.BLAKE2
+        elif self.sha256:
+            result = Hasher.SHA256
+        elif self.md5:
+            result = Hasher.MD5
+        return result
