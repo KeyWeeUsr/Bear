@@ -232,18 +232,19 @@ def run():
     group_action = parser.add_mutually_exclusive_group()
     group_action.add_argument(
         '-f', '--files', metavar='FILE', type=str, nargs='+',
-        help='files for hashing'
+        default=[], help='files for hashing'
     )
     group_action.add_argument(
-        '-t', '--traverse', metavar='FOLDER', type=str, nargs='+',
+        '-t', '--traverse', metavar='FOLDER', type=str, nargs='+', default=[],
         help='list all files in these folders recursively'
     )
     group_action.add_argument(
-        '-s', '--hash', metavar='FOLDER', type=str, nargs='+',
+        '-s', '--hash', metavar='FOLDER', type=str, nargs='+', default=[],
         help='hash all files in these folders recursively'
     )
     group_action.add_argument(
-        '-d', '--duplicates', metavar='FOLDER', type=str, nargs='+',
+        '-d', '--duplicates', metavar='FOLDER',
+        type=str, nargs='+', default=[],
         help='find all duplicated files in these folders recursively'
     )
     group_action.add_argument(
@@ -258,9 +259,8 @@ def run():
         )
     )
     group_action.add_argument(
-        '--load-hashes', metavar='FILE', type=str, nargs='+', help=(
-            'find all duplicated files from files containing hash+path lines'
-        )
+        '--load-hashes', metavar='FILE', type=str, nargs='+', default=[],
+        help='find all duplicated files from files containing hash+path lines'
     )
 
     group_remove = parser.add_mutually_exclusive_group()
