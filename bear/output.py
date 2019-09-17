@@ -2,16 +2,17 @@
 Module for output-related functions.
 """
 
-import re
 import logging
-from os import walk, cpu_count, stat, getpid, remove, listdir
-from os.path import exists, join, abspath, realpath, isfile
+from os import walk, cpu_count, getpid, remove, listdir
+from os.path import exists, join, abspath, realpath
 from multiprocessing import Pool
 from datetime import datetime
 from functools import partial
 from ensure import ensure_annotations
 
-from bear.common import Hasher
+from bear.common import (
+    Hasher, oversized_file, regex_exclude, pattern_exclude
+)
 from bear.hashing import hash_files
 from bear.context import Context
 
@@ -25,34 +26,20 @@ def find_files(ctx: Context, folder: str) -> list:
     """
 
     result = []
-    exclude = ctx.exclude
-    exclude_regex = ctx.exclude_regex
 
     if not exists(folder):
         LOG.critical('Folder %s does not exist! Skipping.', folder)
         return result
 
-    def _is_excluded(value):
-        return any([exc in value for exc in exclude])
-
-    def _is_excluded_regex(value):
-        return any([re.search(exc, value) for exc in exclude_regex])
-
-    def _is_oversized(value):
-        limit = ctx.max_size
-        if not limit or not isfile(value):
-            return False
-        return stat(value).st_size > limit
-
     for name, _, files in walk(folder):
         for fname in files:
             path = join(name, fname)
 
-            if _is_excluded(path):
+            if pattern_exclude(value=path, patterns=ctx.exclude):
                 continue
-            if _is_excluded_regex(path):
+            if regex_exclude(value=path, regexes=ctx.exclude_regex):
                 continue
-            if _is_oversized(path):
+            if oversized_file(path=path, limit=ctx.max_size):
                 continue
 
             result.append(path)
