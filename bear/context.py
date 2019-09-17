@@ -46,10 +46,10 @@ class Context:
             exclude_regex=[],
             verbose=0,
             quiet=False,
-            files=None,
-            traverse=None,
-            hash=None,
-            duplicates=None,
+            files=[],
+            traverse=[],
+            hash=[],
+            duplicates=[],
             version=False,
             community=False,
             keep_oldest=False,
@@ -85,6 +85,7 @@ class Context:
         """
         Get non-MD5 hasher if desired.
         """
+        result = None
         if self.blake2:
             result = Hasher.BLAKE2
         elif self.sha256:
