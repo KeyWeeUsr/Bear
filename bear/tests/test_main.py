@@ -16,6 +16,35 @@ class MainCase(TestCase):
     Testing CLI parameters and __main__.py.
     """
 
+    def test_print_logo(self):
+        """
+        Test (not) printing logo according to different CLI options.
+        """
+        from bear import LOGO_HELP, LOGO
+        from bear.__main__ import print_logo
+
+        with patch("bear.__main__.print") as mock_print:
+            print_logo(Context(Namespace(quiet=True)))
+            print_logo(Context(Namespace(version=True)))
+            mock_print.assert_not_called()
+
+        with patch("bear.__main__.print") as mock_print:
+            print_logo(Context(Namespace(quiet=False)))
+            print_logo(Context(Namespace(version=False)))
+            self.assertEqual(
+                mock_print.call_args_list,
+                [call(LOGO), call(LOGO)]
+            )
+
+        sysargv = patch('sys.argv', [__name__])
+        with sysargv, patch("bear.__main__.print") as mock_print:
+            print_logo(Context(Namespace(quiet=False)))
+            print_logo(Context(Namespace(version=False)))
+            self.assertEqual(
+                mock_print.call_args_list,
+                [call(LOGO_HELP), call(LOGO_HELP)]
+            )
+
     def test_global_log_level(self):
         """
         Test setting log level for all Bear loggers.
