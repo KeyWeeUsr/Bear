@@ -6,14 +6,13 @@ Main module for running the package as a Python module from console:
 
 import sys
 import logging
-from os import stat, remove
 from argparse import ArgumentParser, Namespace
 from webbrowser import open as open_browser
 
 from ensure import ensure_annotations
 
 from bear import NAME, LOGO, LOGO_HELP, VERSION, COMMUNITY_URL
-from bear.common import Hasher
+from bear.common import Hasher, remove_except_oldest, remove_except_newest
 from bear.hashing import hash_file, hash_files
 from bear.output import (
     find_files, filter_files, find_duplicates, output_duplicates,
@@ -64,22 +63,9 @@ def handle_duplicates(ctx: Context, hasher: Hasher):
     duplicates = find_duplicates(ctx=ctx, hasher=hasher)
     output_duplicates(hashes=duplicates, out=ctx.output)
     if ctx.keep_oldest:
-        for dups in duplicates.values():
-            # oldest == smallest timestamp
-            without_oldest = sorted(
-                dups, key=lambda item: stat(item).st_mtime
-            )[1:]
-            for file in without_oldest:
-                remove(file)
-
+        remove_except_oldest(files=duplicates.values())
     elif ctx.keep_newest:
-        for dups in duplicates.values():
-            # reverse for oldest
-            without_newest = sorted(
-                dups, key=lambda item: stat(item).st_mtime, reverse=True
-            )[1:]
-            for file in without_newest:
-                remove(file)
+        remove_except_newest(files=duplicates.values())
 
 
 @ensure_annotations
@@ -91,22 +77,9 @@ def load_hashes(ctx: Context):
     duplicates = load_duplicates_from_hashfiles(ctx=ctx)
     output_duplicates(hashes=duplicates, out=ctx.output)
     if ctx.keep_oldest:
-        for dups in duplicates.values():
-            # oldest == smallest timestamp
-            without_oldest = sorted(
-                dups, key=lambda item: stat(item).st_mtime
-            )[1:]
-            for file in without_oldest:
-                remove(file)
-
+        remove_except_oldest(files=duplicates.values())
     elif ctx.keep_newest:
-        for dups in duplicates.values():
-            # reverse for oldest
-            without_newest = sorted(
-                dups, key=lambda item: stat(item).st_mtime, reverse=True
-            )[1:]
-            for file in without_newest:
-                remove(file)
+        remove_except_newest(files=duplicates.values())
 
 
 @ensure_annotations
