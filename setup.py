@@ -71,7 +71,8 @@ KWARGS = dict(
         'release': STYLE + CI_STYLE + [
             'setuptools', 'wheel',
             'twine', 'pyinstaller', 'requests'
-        ]
+        ],
+        'doc': ['sphinx>=2.2.0', "alabaster>=0.7.12"]
     },
     include_package_data=True,
     data_files=[(NAME, DATA)],
