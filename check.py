@@ -2,6 +2,7 @@
 Style checker and test + coverage runner for Bear.
 """
 
+from sys import exit
 from subprocess import Popen
 from os.path import join, dirname, abspath
 

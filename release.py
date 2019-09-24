@@ -12,6 +12,7 @@ from platform import platform
 from urllib.parse import quote
 from urllib.request import urlopen
 
+import requests
 from bear import NAME, VERSION, GITHUB_API, REPO_PATH, PYPI_NAME, PYPI_INDEX
 
 ROOT = dirname(abspath(__file__))
@@ -118,7 +119,6 @@ def create_executable_windows():
 
 def create_github_release():
     """Draft a new release for a tag (application version) on GitHub."""
-    import requests
 
     result = False
     resp = requests.post(
@@ -149,7 +149,6 @@ def create_github_release():
 
 def _upload_executable(binary_name, upload_name):
     """Upload GNU/Linux executable to GitHub release page."""
-    import requests
 
     result = False
     resp = requests.get(
@@ -234,7 +233,7 @@ def main():
             print('Success!')
         else:
             print('Fail!')
-            exit(1)
+            sys.exit(1)
 
 
 if __name__ == '__main__':
