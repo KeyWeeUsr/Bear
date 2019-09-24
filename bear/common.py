@@ -52,13 +52,12 @@ def remove_except_oldest(files: Iterable):
     """
     Remove all files from list except the single oldest one.
     """
-    for candidate in files:
-        # oldest == smallest timestamp
-        without_oldest = sorted(
-            candidate, key=lambda item: stat(item).st_mtime
-        )[1:]
-        for file in without_oldest:
-            remove(file)
+    # oldest == smallest timestamp
+    without_oldest = sorted(
+        files, key=lambda item: stat(item).st_mtime
+    )[1:]
+    for file in without_oldest:
+        remove(file)
 
 
 @ensure_annotations
@@ -66,13 +65,12 @@ def remove_except_newest(files: Iterable):
     """
     Remove all files from list except the single newest one.
     """
-    for candidate in files:
-        # reverse for oldest
-        without_newest = sorted(
-            candidate, key=lambda item: stat(item).st_mtime, reverse=True
-        )[1:]
-        for file in without_newest:
-            remove(file)
+    # reverse for oldest
+    without_newest = sorted(
+        files, key=lambda item: stat(item).st_mtime, reverse=True
+    )[1:]
+    for file in without_newest:
+        remove(file)
 
 
 class Hasher(Enum):
