@@ -3,7 +3,9 @@ Text functions and objects from bear.common.
 """
 
 from unittest import TestCase, main
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
+
+from datetime import datetime
 
 
 class CommonCase(TestCase):
@@ -72,6 +74,60 @@ class CommonCase(TestCase):
         self.assertFalse(regex_exclude(
             "/some/fol der/test", regexes=["nottest", "no.*match"]
         ))
+
+    def test_remove_except_oldest(self):
+        """
+        Test removing all files except the oldest one.
+        """
+        from bear.common import remove_except_oldest as reo
+        data = ["aaa", "bbb", "ccc"]
+
+        # pylint: disable=missing-docstring,too-few-public-methods
+        class Stat:
+            modified = {
+                "aaa": datetime(2019, 1, 1, 12, 0),
+                "bbb": datetime(2019, 1, 1, 12, 1),
+                "ccc": datetime(2019, 1, 1, 12, 2)
+            }
+
+            def __init__(self, path):
+                self.st_mtime = self.modified[path]
+
+        remove_patch = patch("bear.common.remove")
+        stat_patch = patch("bear.common.stat", new=Stat)
+        with stat_patch, remove_patch as mock_remove:
+            reo(data)
+        self.assertEqual(
+            mock_remove.call_args_list, [call(item) for item in data][1:]
+        )
+
+    def test_remove_except_newest(self):
+        """
+        Test removing all files except the oldest one.
+        """
+        from bear.common import remove_except_newest as ren
+        data = ["aaa", "bbb", "ccc"]
+
+        # pylint: disable=missing-docstring,too-few-public-methods
+        class Stat:
+            modified = {
+                "aaa": datetime(2019, 1, 1, 12, 0),
+                "bbb": datetime(2019, 1, 1, 12, 1),
+                "ccc": datetime(2019, 1, 1, 12, 2)
+            }
+
+            def __init__(self, path):
+                self.st_mtime = self.modified[path]
+
+        remove_patch = patch("bear.common.remove")
+        stat_patch = patch("bear.common.stat", new=Stat)
+        with stat_patch, remove_patch as mock_remove:
+            ren(data)
+        self.assertEqual(
+            mock_remove.call_args_list,
+            # reverse + slice
+            [call(item) for item in data][::-1][1:]
+        )
 
 
 if __name__ == '__main__':
