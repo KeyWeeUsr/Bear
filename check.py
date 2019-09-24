@@ -2,7 +2,7 @@
 Style checker and test + coverage runner for Bear.
 """
 
-from sys import exit
+import sys
 from subprocess import Popen
 from os.path import join, dirname, abspath
 
@@ -54,4 +54,4 @@ if __name__ == '__main__':
             print('Success!')
         else:
             print('Fail!')
-            exit(proc.returncode)
+            sys.exit(proc.returncode)
